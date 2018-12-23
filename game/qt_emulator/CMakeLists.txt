@@ -14,7 +14,7 @@ add_executable(gamebox main.cpp window.cpp renderarea.cpp)
 target_sources(gamebox PUBLIC ../BackspaceInvaders.cpp ../BreakOut.cpp ../Flappy.cpp
                ../Raycaster.cpp ../Saper.cpp ../Snake.cpp ../Snail.cpp ../Snake2.cpp
                ../Tester.cpp ../Mario.cpp ../Ghostbuster.cpp ../SpaceShips.cpp
-               ../LodeRunner.cpp ../TicTacToe.cpp)
+               ../LodeRunner.cpp ../TicTacToe.cpp ../Pacman.cpp)
 
 target_sources(gamebox PUBLIC ../application.cpp ../avrfix.cpp ../menu.cpp
                          ../random.cpp)

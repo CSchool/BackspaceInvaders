@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/hexygirl/Gamebox/Gamebox/game/Pacman.cpp
+libgame.h
+/home/hexygirl/Gamebox/Gamebox/game/libgame.h
+graphics.h
+/home/hexygirl/Gamebox/Gamebox/game/graphics.h
+binary.h
+/home/hexygirl/Gamebox/Gamebox/game/binary.h
+controls.h
+/home/hexygirl/Gamebox/Gamebox/game/controls.h
+
+/home/hexygirl/Gamebox/Gamebox/game/binary.h
+
+/home/hexygirl/Gamebox/Gamebox/game/config.h
+stdlib.h
+-
+string
+-
+algorithm
+-
+stdint.h
+-
+string.h
+-
+Arduino.h
+-
+avr/pgmspace.h
+-
+
+/home/hexygirl/Gamebox/Gamebox/game/controls.h
+stdint.h
+-
+
+/home/hexygirl/Gamebox/Gamebox/game/graphics.h
+
+/home/hexygirl/Gamebox/Gamebox/game/libgame.h
+config.h
+/home/hexygirl/Gamebox/Gamebox/game/config.h
+

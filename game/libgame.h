@@ -46,7 +46,7 @@ extern const game_instance Mario PROGMEM;
 extern const game_instance Ghostbuster PROGMEM;
 /*extern const game_instance artyom;*/
 extern const game_instance TicTacToe PROGMEM;
-
+extern const game_instance Pacman PROGMEM;
 /* Test applications */
 #ifndef EMULATED
 extern const game_instance Dump PROGMEM;
@@ -65,4 +65,4 @@ void game_setup();
 void game_save(const void *buf, uint16_t size);
 void game_load(void *buf, uint16_t size);
 
-#endif 
+#endif

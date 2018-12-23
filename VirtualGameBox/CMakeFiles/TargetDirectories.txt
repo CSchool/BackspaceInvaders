@@ -1,0 +1,4 @@
+/home/hexygirl/Gamebox/Gamebox/VirtualGameBox/CMakeFiles/rebuild_cache.dir
+/home/hexygirl/Gamebox/Gamebox/VirtualGameBox/CMakeFiles/VirtualGameBox.dir
+/home/hexygirl/Gamebox/Gamebox/VirtualGameBox/CMakeFiles/edit_cache.dir
+/home/hexygirl/Gamebox/Gamebox/VirtualGameBox/CMakeFiles/VirtualGameBox_autogen.dir

@@ -1,0 +1,2 @@
+# Hashes of file build rules.
+f18901069a0496cc04625539b06b0f1c CMakeFiles/VirtualGameBox_autogen

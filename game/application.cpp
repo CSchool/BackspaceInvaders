@@ -30,6 +30,7 @@ static const MenuItem main_menu[] PROGMEM = {
     { "SpaceShips", &SpaceShips },
     { "Mario", &Mario},
     { "TicTacToe", &TicTacToe},
+    { "Pacman", &Pacman},
 /* Not finished    { "artyom", &artyom }, */
 
     { "Demos", NULL },

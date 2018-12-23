@@ -1,0 +1,4 @@
+/home/hexygirl/Gamebox/Gamebox/game/qt_emulator/build/CMakeFiles/rebuild_cache.dir
+/home/hexygirl/Gamebox/Gamebox/game/qt_emulator/build/CMakeFiles/gamebox.dir
+/home/hexygirl/Gamebox/Gamebox/game/qt_emulator/build/CMakeFiles/edit_cache.dir
+/home/hexygirl/Gamebox/Gamebox/game/qt_emulator/build/CMakeFiles/gamebox_autogen.dir
