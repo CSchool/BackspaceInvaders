@@ -22,6 +22,14 @@ const uint8_t pacman_lines[] PROGMEM = {
 };
 
 #undef B
+#define B PURPLE
+const uint8_t pinky_lines[] PROGMEM = {
+    B, B, B,
+    B, B, B,
+    B, B, B
+};
+
+#undef B
 const game_sprite pacman PROGMEM = {
     // ШИРИНА, ВЫСОТА, ДАННЫЕ
     3, 3, pacman_lines
@@ -29,6 +37,10 @@ const game_sprite pacman PROGMEM = {
 const game_sprite wall PROGMEM = {
     // ШИРИНА, ВЫСОТА, ДАННЫЕ
     3, 3, wall_lines
+};
+const game_sprite pinky PROGMEM = {
+    // ШИРИНА, ВЫСОТА, ДАННЫЕ
+    3, 3, pinky_lines
 };
 /* Встроенные цвета:
  *
@@ -44,9 +56,42 @@ const game_sprite wall PROGMEM = {
  *  Для использования 64-х цветной палитры, укажите в game.ino COLOR_6BIT = 1
  *
  * */
-
 /* Кнопки:
  *
+
+
+
+
+
+
+
+
+
+
+костян
+тут нужно сделать двтижение призраков
+тебе нужно написать поиск кратчайшего пути по клеткам от призрака к игроку
+да, это графы
+удачи
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  * НА КОРПУСЕ:
  * BUTTON_SW, BUTTON_NW, BUTTON_SE, BUTTON_NE
  *
@@ -141,6 +186,7 @@ static void Pacman_prepare()
     data->pos[0] = data->pos[1] = 3;
     data->state = 1;
     data->speed[0] = 1;
+
     /* Здесь код, который будет исполнятся один раз */
     /* Здесь нужно инициализировать переменные */
 }
@@ -150,20 +196,40 @@ static void Pacman_render()
 
     /* Здесь код, который будет вывзваться для отрисовки кадра */
     /* Он не должен менять состояние игры, для этого есть функция update */
+    for(int i = 0; i < 18; i++)
+      for(int j = 0; j < 18; j++)
+        {
+          game_draw_pixel(i*3+1, j*3+1, WHITE);
+        }
     for(int i = 0; i < WALLNUM; i++)
     {
         game_draw_color_sprite(&wall, walls[i][0]*3, walls[i][1]*3);
     }
     game_draw_color_sprite(&pacman, data->pos[0], data->pos[1]);
+    game_draw_color_sprite(&pinky, data->enemies[0][0], data->enemies[0][1]);
     /* Здесь (и только здесь) нужно вызывать функции game_draw_??? */
 }
-
+void DFS(int v, int from)
+{
+    if (mark[v] != 0)  // Если мы здесь уже были, то тут больше делать нечего
+    {
+        return;
+    }
+    mark[v] = 1;   // Помечаем, что мы здесь были
+    prior[v] = from;  // Запоминаем, откуда пришли
+    if (v == finish)   // Проверяем, конец ли
+    {
+        cout << "Hooray! The path was found!\n";
+        return;
+    }
+    for (int i = 0; i < (int)edges[v].size(); ++i)  // Для каждого ребра
+    {
+        DFS(edges[v][i], v);  // Запускаемся из соседа
+    }
+}
 static void Pacman_update(unsigned long delta)
 {
 
-    switch(data->state)
-    {
-    case GAME:
     for(int i = 0; i < WALLNUM; i++)
     {
         if( (walls[i][0] - data->speed[0]) * 3 == data->pos[0] && (walls[i][1] - data->speed[1]) * 3 == data->pos[1])
@@ -185,10 +251,10 @@ static void Pacman_update(unsigned long delta)
         {
             for(int i = 0; i < WALLNUM; i++)
             {
-                if( (walls[i][0] - 1) * 3 == data->pos[0] && (walls[i][1]) * 3 == data->pos[1]) {
+                if( (walls[i][0] - 1) * 3 == data->pos[0] && (walls[i][1]) * 3 == data->pos[1])
                     goto exit;
 
-                }
+
             }
             data->speed[0] = 1;
             data->speed[1] = 0;
@@ -224,7 +290,6 @@ exit:
         data->pos[0] += data->speed[0];
         data->pos[1] += data->speed[1];
       }
-    }
     /* Здесь код, который будет выполняться в цикле */
     /* Переменная delta содержит количество миллисекунд с последнего вызова */
 
