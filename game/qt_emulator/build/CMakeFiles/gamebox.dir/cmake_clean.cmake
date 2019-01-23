@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
   "gamebox_autogen"
-  "CMakeFiles/gamebox_autogen.dir/AutogenOldSettings.cmake"
+  "CMakeFiles/gamebox_autogen.dir/AutogenOldSettings.txt"
   "CMakeFiles/gamebox.dir/main.cpp.o"
   "CMakeFiles/gamebox.dir/window.cpp.o"
   "CMakeFiles/gamebox.dir/renderarea.cpp.o"

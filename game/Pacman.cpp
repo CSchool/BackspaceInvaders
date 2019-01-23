@@ -165,14 +165,19 @@ const game_sprite YourSprite PROGMEM = {
  *
  * */
 
+static const int8_t pils[21][21] PROGMEM ={{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, { 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0}, { 0, 2, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 2, 0}, { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}, { 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0}, { 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0}, { 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0}, { 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0}, { 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0}, { 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0}, { 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0}, { 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0}, { 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0}, { 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0}, { 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0}, { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}, { 0, 2, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 2, 0}, { 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0}, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+     //gamestate
+
 struct PacmanData
 {
 
     int8_t pos[2];//player position
     int8_t speed[2];//player speed
     int8_t enemies[4][2];//enemies position
-    int8_t doof[4][2];//position of POWEEER
-    int8_t state; //gamestate
+    bool win;
+    int8_t pills[21][21];
+    int8_t bI[2];
+    uint16_t counter;
 
     /* Объявляйте ваши переменные здесь */
     /* Чтобы потом обращаться к ним, пишите data->ПЕРЕМЕННАЯ */
@@ -184,52 +189,54 @@ bool a;
 static void Pacman_prepare()
 {
     data->pos[0] = data->pos[1] = 3;
-    data->state = 1;
     data->speed[0] = 1;
-
+    for(int i = 0; i < 21; i++)
+      for(int j = 0; j < 21; j++)
+        data->pills[i][j] = pils[i][j];
+    data->counter = 0;
     /* Здесь код, который будет исполнятся один раз */
     /* Здесь нужно инициализировать переменные */
 }
 
 static void Pacman_render()
 {
+    if(data->win)
+    {
+      game_draw_text((const uint8_t*)"YOU WIN", 4, 4, WHITE);
+      return;
+
+    }
 
     /* Здесь код, который будет вывзваться для отрисовки кадра */
     /* Он не должен менять состояние игры, для этого есть функция update */
-    for(int i = 0; i < 18; i++)
-      for(int j = 0; j < 18; j++)
-        {
-          game_draw_pixel(i*3+1, j*3+1, WHITE);
-        }
+    for(int i = 0; i < 21; i++)
+      for(int j = 0; j < 21; j++) {
+        if(data->pills[j][i] == 1)
+          game_draw_pixel(i*3+1,j*3+1,WHITE);
+        else if(data->pills[j][i] == 2)
+          game_draw_pixel(i*3+1, j*3+1, RED);
+      }
     for(int i = 0; i < WALLNUM; i++)
     {
         game_draw_color_sprite(&wall, walls[i][0]*3, walls[i][1]*3);
     }
     game_draw_color_sprite(&pacman, data->pos[0], data->pos[1]);
     game_draw_color_sprite(&pinky, data->enemies[0][0], data->enemies[0][1]);
+    game_draw_digits(data->counter,3, 53, 55, WHITE);
     /* Здесь (и только здесь) нужно вызывать функции game_draw_??? */
 }
-void DFS(int v, int from)
-{
-    if (mark[v] != 0)  // Если мы здесь уже были, то тут больше делать нечего
-    {
-        return;
-    }
-    mark[v] = 1;   // Помечаем, что мы здесь были
-    prior[v] = from;  // Запоминаем, откуда пришли
-    if (v == finish)   // Проверяем, конец ли
-    {
-        cout << "Hooray! The path was found!\n";
-        return;
-    }
-    for (int i = 0; i < (int)edges[v].size(); ++i)  // Для каждого ребра
-    {
-        DFS(edges[v][i], v);  // Запускаемся из соседа
-    }
-}
+
 static void Pacman_update(unsigned long delta)
 {
-
+    data->win = data->counter > 130;
+    if(data->win)
+    {
+      return;
+    }
+    if( 1 == data->pills[(uint8_t)data->pos[1]/3][(uint8_t)data->pos[0]/3]) {
+      data->pills[(uint8_t)data->pos[1]/3][(uint8_t)data->pos[0]/3] = 0;
+      data->counter++;
+    }
     for(int i = 0; i < WALLNUM; i++)
     {
         if( (walls[i][0] - data->speed[0]) * 3 == data->pos[0] && (walls[i][1] - data->speed[1]) * 3 == data->pos[1])
@@ -245,7 +252,6 @@ static void Pacman_update(unsigned long delta)
             }
             data->speed[0] = -1;
             data->speed[1] = 0;
-            break;
         }
         if( game_is_button_pressed(BUTTON_RIGHT))
         {
