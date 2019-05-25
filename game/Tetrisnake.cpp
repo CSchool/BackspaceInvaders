@@ -137,7 +137,7 @@ struct TetrisnakeData
     bool half;
     uint16_t snakeBegin;
     uint16_t snakeEnd;
-    uint8_t hiscore;
+    uint16_t hiscore;
     uint8_t tact;
     uint8_t blockTimer;
     uint16_t score;
