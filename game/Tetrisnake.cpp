@@ -308,7 +308,7 @@ static bool check_lines()
 static void cut_snake()
 {
     uint16_t length = (MAXLEN + data->snakeEnd - data->snakeBegin) % MAXLEN;
-    uint16_t half_l = length >= 6 ? length/2 : 3;
+    uint16_t half_l = length >= 6 ? (length / 2) : (length - 3);
     for(uint16_t i = 0, j = (MAXLEN + data->snakeEnd-1)%MAXLEN; i<half_l; i++, j = (MAXLEN + j-1) % MAXLEN)
     {
         Tetrisnake_draw_rect(data->snakeX[j], data->snakeY[j], BLACK);
@@ -436,18 +436,13 @@ static bool fall_dfs(int16_t i)
                 blocks[count]=k+TETRISNAKE_WIDTH;
                 count++;
             }
-            if(k+TETRISNAKE_WIDTH < BLOCK_BUFFER_SIZE && is_alien_block(k+TETRISNAKE_WIDTH))
+            if(is_alien_block(k+TETRISNAKE_WIDTH))
             {
                 isFall = false;
                 isAlien = true;
             }
             if(k+TETRISNAKE_WIDTH < BLOCK_BUFFER_SIZE && is_a_snake(k+TETRISNAKE_WIDTH))
                 isFall = false;
-            if (k + TETRISNAKE_WIDTH >= BLOCK_BUFFER_SIZE)
-            {
-                isFall = false;
-                isAlien = true;
-            }
         }
         if(!isFall)
         {
@@ -484,7 +479,7 @@ static void fall_block(uint16_t i)
 
 static void fall_blocks()
 {
-    for(int16_t i=BLOCK_BUFFER_SIZE - TETRISNAKE_WIDTH - 1; i >= 0;i--)
+    for(int16_t i=BLOCK_BUFFER_SIZE - 1; i >= 0;i--)
     {
         fall_block(i);
     }
