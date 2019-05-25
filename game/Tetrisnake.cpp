@@ -272,7 +272,7 @@ static bool is_fell_on_snake(int newX, int newY)
     return is_a_snake(newX, newY) || block_property(i, IS_EXIST) && !block_property(i, ALIEN);
 }
 
-static void reomove_line(uint16_t i)
+static void remove_line(uint16_t i)
 {
     uint8_t y = (i / TETRISNAKE_WIDTH) + UP_BOUND + 1; 
     uint8_t x = LEFT_BOUND + 1;
@@ -298,7 +298,7 @@ static bool check_lines()
         }
         if(isLine)
         {
-            reomove_line(i);
+            remove_line(i);
             return true;
         }
     }
