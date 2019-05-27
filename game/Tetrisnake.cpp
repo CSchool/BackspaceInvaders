@@ -137,7 +137,7 @@ struct TetrisnakeData
     bool half;
     uint16_t snakeBegin;
     uint16_t snakeEnd;
-    uint8_t hiscore;
+    uint16_t hiscore;
     uint8_t tact;
     uint8_t blockTimer;
     uint16_t score;
@@ -272,7 +272,7 @@ static bool is_fell_on_snake(int newX, int newY)
     return is_a_snake(newX, newY) || block_property(i, IS_EXIST) && !block_property(i, ALIEN);
 }
 
-static void reomove_line(uint16_t i)
+static void remove_line(uint16_t i)
 {
     uint8_t y = (i / TETRISNAKE_WIDTH) + UP_BOUND + 1; 
     uint8_t x = LEFT_BOUND + 1;
@@ -298,7 +298,7 @@ static bool check_lines()
         }
         if(isLine)
         {
-            reomove_line(i);
+            remove_line(i);
             return true;
         }
     }
@@ -308,7 +308,7 @@ static bool check_lines()
 static void cut_snake()
 {
     uint16_t length = (MAXLEN + data->snakeEnd - data->snakeBegin) % MAXLEN;
-    uint16_t half_l = length >= 6 ? length/2 : 3;
+    uint16_t half_l = length >= 6 ? (length / 2) : (length - 3);
     for(uint16_t i = 0, j = (MAXLEN + data->snakeEnd-1)%MAXLEN; i<half_l; i++, j = (MAXLEN + j-1) % MAXLEN)
     {
         Tetrisnake_draw_rect(data->snakeX[j], data->snakeY[j], BLACK);
@@ -436,18 +436,13 @@ static bool fall_dfs(int16_t i)
                 blocks[count]=k+TETRISNAKE_WIDTH;
                 count++;
             }
-            if(k+TETRISNAKE_WIDTH < BLOCK_BUFFER_SIZE && is_alien_block(k+TETRISNAKE_WIDTH))
+            if(is_alien_block(k+TETRISNAKE_WIDTH))
             {
                 isFall = false;
                 isAlien = true;
             }
             if(k+TETRISNAKE_WIDTH < BLOCK_BUFFER_SIZE && is_a_snake(k+TETRISNAKE_WIDTH))
                 isFall = false;
-            if (k + TETRISNAKE_WIDTH >= BLOCK_BUFFER_SIZE)
-            {
-                isFall = false;
-                isAlien = true;
-            }
         }
         if(!isFall)
         {
@@ -484,7 +479,7 @@ static void fall_block(uint16_t i)
 
 static void fall_blocks()
 {
-    for(int16_t i=BLOCK_BUFFER_SIZE - TETRISNAKE_WIDTH - 1; i >= 0;i--)
+    for(int16_t i=BLOCK_BUFFER_SIZE - 1; i >= 0;i--)
     {
         fall_block(i);
     }
@@ -646,22 +641,26 @@ static void Tetrisnake_update(unsigned long delta)
             data->velX = newVelX;
             data->velY = newVelY;
         }
-        else if (game_is_button_pressed(LEFT) && data->velY != 0)
+        else if (game_is_button_pressed(LEFT) && data->velY != 0 &&
+                 newX > LEFT_BOUND+1)
         {
             data->velX = -1;
             data->velY = 0;
         }
-        else if (game_is_button_pressed(RIGHT) && data->velY != 0)
+        else if (game_is_button_pressed(RIGHT) && data->velY != 0 &&
+                 newX < RIGHT_BOUND-1)
         {
             data->velX = 1;
             data->velY = 0;
         }
-        else if (game_is_button_pressed(UP) && data->velX != 0)
+        else if (game_is_button_pressed(UP) && data->velX != 0 &&
+                 newY > UP_BOUND+1)
         {
             data->velX = 0;
             data->velY = -1;
         }
-        else if (game_is_button_pressed(DOWN) && data->velX != 0)
+        else if (game_is_button_pressed(DOWN) && data->velX != 0 &&
+                 newY < DOWN_BOUND-1)
         {
             data->velX = 0;
             data->velY = 1;
