@@ -40,7 +40,7 @@ const uint8_t maze[] PROGMEM = {
     B10110110, B11010110, B10100001, B11110111,
     B10110110, B11000110, B11111100, B11000011,
     B10000110, B11101100, B11111111, B11111001,
-    B10011110, B00111000, B11000000, B11011101,
+    B11011110, B00111000, B11000000, B11011101,
     B11000000, B11100010, B11110110, B11000001,
     B10011110, B11001110, B10110110, B11111101,
     B11000110, B11111110, B10110110, B11000001,
@@ -230,6 +230,121 @@ static const uint8_t sidewall3Lines[] PROGMEM = {
 };
 static const game_sprite sidewall3sprite PROGMEM = {5, 16, sidewall3Lines};
 
+static const uint8_t frontwall1Lines[] PROGMEM = {
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B00000000, B00000000, 
+    B00000000, B00000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B00000000, B00000000, 
+    B00000000, B00000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B00000000, B00000000, 
+    B00000000, B00000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B00000000, B00000000, 
+    B00000000, B00000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B11011111, B10000000, 
+    B00000000, B00000000, 
+    B00000000, B00000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+    B11111101, B10000000, 
+};
+static const game_sprite frontwall1sprite PROGMEM = {9, 46, frontwall1Lines};
+
+static const uint8_t frontwall2Lines[] PROGMEM = {
+    B11011111, 
+    B11011111, 
+    B11011111, 
+    B11011111, 
+    B00000000, 
+    B11111011, 
+    B11111011, 
+    B11111011, 
+    B11111011, 
+    B00000000, 
+    B11011111, 
+    B11011111, 
+    B11011111, 
+    B11011111, 
+    B00000000, 
+    B11111011, 
+    B11111011, 
+    B11111011, 
+    B11111011, 
+    B00000000, 
+    B11011111, 
+    B11011111, 
+    B11011111, 
+    B11011111, 
+    B00000000, 
+    B11111011, 
+    B11111011, 
+    B11111011, 
+    B11111011, 
+    B11111011, 
+};
+static const game_sprite frontwall2sprite PROGMEM = {8, 30, frontwall2Lines};
+
+static const uint8_t frontwall3Lines[] PROGMEM = {
+    B10111110, 
+    B00000000, 
+    B11111010, 
+    B11111010, 
+    B00000000, 
+    B10111110, 
+    B10111110, 
+    B00000000, 
+    B11111010, 
+    B11111010, 
+    B00000000, 
+    B10111110, 
+    B10111110, 
+    B00000000, 
+    B11111010, 
+    B11111010, 
+};
+static const game_sprite frontwall3sprite PROGMEM = {7, 16, frontwall3Lines};
+
+static const uint8_t frontwall4Lines[] PROGMEM = {
+    B11111100, 
+    B11011100, 
+    B11110100, 
+    B10111100, 
+    B01101000, 
+    B11111100, 
+};
+static const game_sprite frontwall4sprite PROGMEM = {6, 6, frontwall4Lines};
+
+
 struct Maze3DData
 {
     int8_t x, y, dir;
@@ -258,11 +373,8 @@ static int8_t GetDy(uint8_t dir)
 
 static void Maze3D_draw()
 {
-//
-//
-//     ### #
-//             
     game_clear_screen();
+    // draw walls
     int8_t dx = GetDx(data->dir);
     int8_t dy = GetDy(data->dir);
     int8_t left = CCW(data->dir);
@@ -272,54 +384,93 @@ static void Maze3D_draw()
     int8_t dxr = GetDx(right);
     int8_t dyr = GetDy(right);
     if (IsWall(data->x + dx, data->y + dy))
-        game_draw_rect(9, 9, 46, 46, COLOR_FRONT);
+    {
+        game_draw_sprite(&frontwall1sprite, 9, 9, COLOR_FRONT);
+        game_draw_sprite(&frontwall1sprite, 15, 9, COLOR_FRONT);
+        game_draw_sprite(&frontwall1sprite, 23, 9, COLOR_FRONT);
+        game_draw_sprite(&frontwall1sprite, 32, 9, COLOR_FRONT);
+        game_draw_sprite(&frontwall1sprite, 37, 9, COLOR_FRONT);
+        game_draw_sprite(&frontwall1sprite, 46, 9, COLOR_FRONT);
+    }
     else
     {
         if (IsWall(data->x + 2 * dx, data->y + 2 * dy))
-            game_draw_rect(17, 17, 30, 30, COLOR_FRONT);
+        {
+            game_draw_sprite(&frontwall2sprite, 17, 17, COLOR_FRONT);
+            game_draw_sprite(&frontwall2sprite, 24, 17, COLOR_FRONT);
+            game_draw_sprite(&frontwall2sprite, 32, 17, COLOR_FRONT);
+            game_draw_sprite(&frontwall2sprite, 39, 17, COLOR_FRONT);
+        }
         else
         {
             if (IsWall(data->x + 3 * dx, data->y + 3 * dy))
-                game_draw_rect(24, 24, 16, 16, COLOR_FRONT);
+            {
+                game_draw_sprite(&frontwall3sprite, 24, 24, COLOR_FRONT);
+                game_draw_sprite(&frontwall3sprite, 30, 24, COLOR_FRONT);
+                game_draw_sprite(&frontwall3sprite, 33, 24, COLOR_FRONT);
+            }
             else
             {
                 if (IsWall(data->x + 4 * dx, data->y + 4 * dy))
-                    game_draw_rect(29, 29, 6, 6, COLOR_FRONT);
+                    game_draw_sprite(&frontwall4sprite, 29, 29, COLOR_FRONT);
                 if (IsWall(data->x + dxl + 3 * dx, data->y + dyl + 3 * dy))
                     game_draw_sprite(&sidewall3sprite, 24, 24, COLOR_SIDE);
                 else if (IsWall(data->x + dxl + 4 * dx, data->y + dyl + 4 * dy))
-                    game_draw_rect(24, 29, 6, 6, COLOR_FRONT);
+                    game_draw_sprite(&frontwall4sprite, 24, 29, COLOR_FRONT);
                 if (IsWall(data->x + dxr + 3 * dx, data->y + dyr + 3 * dy))
                     game_draw_sprite(&sidewall3sprite, 35, 24, COLOR_SIDE, SPRITE_MIRROR_H);
                 else if (IsWall(data->x + dxr + 4 * dx, data->y + dyr + 4 * dy))
-                    game_draw_rect(34, 29, 6, 6, COLOR_FRONT);
+                    game_draw_sprite(&frontwall4sprite, 34, 29, COLOR_FRONT);
             }
             if (IsWall(data->x + dxl + 2 * dx, data->y + dyl + 2 * dy))
                 game_draw_sprite(&sidewall2sprite, 17, 17, COLOR_SIDE);
             else if (IsWall(data->x + dxl + 3 * dx, data->y + dyl + 3 * dy))
-                game_draw_rect(17, 24, 7, 16, COLOR_FRONT);
+                game_draw_sprite(&frontwall3sprite, 17, 24, COLOR_FRONT);
             if (IsWall(data->x + dxr + 2 * dx, data->y + dyr + 2 * dy))
                 game_draw_sprite(&sidewall2sprite, 40, 17, COLOR_SIDE, SPRITE_MIRROR_H);
             else if (IsWall(data->x + dxr + 3 * dx, data->y + dyr + 3 * dy))
-                game_draw_rect(40, 24, 7, 16, COLOR_FRONT);
+                game_draw_sprite(&frontwall3sprite, 40, 24, COLOR_FRONT);
         }
         if (IsWall(data->x + dxl + dx, data->y + dyl + dy))
             game_draw_sprite(&sidewall1sprite, 9, 9, COLOR_SIDE);
         else if (IsWall(data->x + dxl + 2 * dx, data->y + dyl + 2 * dy))
-            game_draw_rect(9, 17, 8, 30, COLOR_FRONT);
+            game_draw_sprite(&frontwall2sprite, 9, 17, COLOR_FRONT);
         if (IsWall(data->x + dxr + dx, data->y + dyr + dy))
             game_draw_sprite(&sidewall1sprite, 47, 9, COLOR_SIDE, SPRITE_MIRROR_H);
         else if (IsWall(data->x + dxr + 2 * dx, data->y + dyr + 2 * dy))
-            game_draw_rect(47, 17, 8, 30, COLOR_FRONT);
+            game_draw_sprite(&frontwall2sprite, 47, 17, COLOR_FRONT);
     }
     if (IsWall(data->x + dxl, data->y + dyl))
         game_draw_sprite(&sidewall0sprite, 0, 0, COLOR_SIDE);
     else if (IsWall(data->x + dxl + dx, data->y + dyl + dy))
-        game_draw_rect(0, 9, 9, 46, COLOR_FRONT);
+        game_draw_sprite(&frontwall1sprite, 0, 9, COLOR_FRONT);
     if (IsWall(data->x + dxr, data->y + dyr))
         game_draw_sprite(&sidewall0sprite, 55, 0, COLOR_SIDE, SPRITE_MIRROR_H);
     else if (IsWall(data->x + dxr + dx, data->y + dyr + dy))
-        game_draw_rect(55, 9, 9, 46, COLOR_FRONT);
+        game_draw_sprite(&frontwall1sprite, 55, 9, COLOR_FRONT);
+    // draw map
+    const int mapX = 6;
+    const int mapY = 6;
+    for (int8_t dx = -4 ; dx <= 4 ; ++dx)
+    {
+        int8_t x = data->x + dx;
+        for (int8_t dy = -4 ; dy <= 4 ; ++dy)
+        {
+            int8_t y = data->y + dy;
+            if (x < 0 || x >= MW || y < 0 || y >= MH
+                || IsWall(x, y))
+            {
+                game_draw_pixel(mapX + dx, mapY + dy, BLUE);
+            }
+            else
+            {
+                game_draw_pixel(mapX + dx, mapY + dy, BLACK);
+            }
+            
+        }
+    }
+    // draw player on map
+    game_draw_pixel(mapX, mapY, GREEN);
 }
 
 static void Maze3D_prepare()
