@@ -9,3 +9,4 @@ moc_window.cpp
 *.sln
 *.vcxproj
 *.filters
+build/*

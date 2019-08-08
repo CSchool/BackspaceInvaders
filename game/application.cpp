@@ -9,8 +9,13 @@
 #include "music.h"
 
 static const MenuItem main_menu[] PROGMEM = {
+    { "\xcb\xca\xd8 2019", NULL },
 #ifdef FRAME_BUFFER
+    { "Maze 3D", &Maze3D},
+#endif
+
     { "NY2019", NULL},
+#ifdef FRAME_BUFFER
     { "Demo", &NY2019},
     { "Tetrisnake", &Tetrisnake },
 #endif

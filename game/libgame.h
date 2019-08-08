@@ -55,6 +55,11 @@ extern const game_instance Tetrisnake PROGMEM;
 #endif
 extern const game_instance DoodleJump PROGMEM;
 
+/* LKSH 2019 */
+#ifdef FRAME_BUFFER
+extern const game_instance Maze3D PROGMEM;
+#endif
+
 /* Test applications */
 #ifndef EMULATED
 extern const game_instance Dump PROGMEM;
