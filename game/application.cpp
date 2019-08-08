@@ -11,6 +11,7 @@
 static const MenuItem main_menu[] PROGMEM = {
 #ifdef FRAME_BUFFER
     { "NY2019", NULL},
+    { "Minecraft", &Minecraft},
     { "Demo", &NY2019},
     { "Tetrisnake", &Tetrisnake },
 #endif
