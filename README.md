@@ -158,10 +158,10 @@ Almost working tic-tac-toe game.
 * 2048
 * Tetris
 * rogue-like
-* Doom-like
 * Klad
 * Jumping jack
 * True breakout-like game
+* Game of life
 * Anything else from Atari 2600
 * http://www.mithotronic.de/ledmeplay_games_overview.html
 
