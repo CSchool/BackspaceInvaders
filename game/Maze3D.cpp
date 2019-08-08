@@ -172,7 +172,7 @@ static void Maze3D_draw()
         if (IsWall(data->x + dxl, data->y + dyl))
             game_draw_sprite(&wall0sprite, 0, 0, RED_DARK);
         if (IsWall(data->x + dxr, data->y + dyr))
-            game_draw_rect(56, 8, 8, 48, RED_DARK);
+            game_draw_sprite(&wall0sprite, 55, 0, RED_DARK, SPRITE_MIRROR_H);
     }
 }
 

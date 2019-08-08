@@ -80,7 +80,8 @@ void game_draw_rect(int8_t x, int8_t y, int8_t w, int8_t h, uint8_t color)
             game_draw_pixel(x + dx, y + dy, color);
 }
 
-void game_draw_sprite(const struct game_sprite *s, int8_t x, int8_t y, uint8_t color)
+void game_draw_sprite(const struct game_sprite *s, int8_t x, int8_t y,
+                      uint8_t color, uint8_t rot)
 {
     for (int dx = 0; dx < s->width; ++dx)
     {
@@ -90,8 +91,17 @@ void game_draw_sprite(const struct game_sprite *s, int8_t x, int8_t y, uint8_t c
             int yy = y + dy;
             if (xx < 0 || xx >= WIDTH || yy < 0 || yy >= HEIGHT)
                 continue;
-            int byte = (s->width + 7) / 8 * dy + dx / 8;
-            int bit = 7 - dx % 8;
+            uint8_t dw = s->width % 8 ? 8 - s->width % 8 : 0;
+            int byte = (s->width + 7) / 8 * dy;
+            if (rot == SPRITE_NORMAL)
+                byte += dx / 8;
+            else if (rot == SPRITE_MIRROR_H)
+                byte += (s->width - 1 - dx) / 8;
+            int bit = 0;
+            if (rot == SPRITE_NORMAL)
+                bit = 7 - dx % 8;
+            else if (rot == SPRITE_MIRROR_H)
+                bit = (dx + dw) % 8;
             if ((s->lines[byte] >> bit) & 1)
                 game_draw_pixel(xx, yy, color);
         }

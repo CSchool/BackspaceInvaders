@@ -32,6 +32,13 @@
 
 // SPRITE
 
+#define SPRITE_NORMAL   0
+#define SPRITE_MIRROR_H 1
+// #define SPRITE_MIRROR_V 2
+// #define SPRITE_ROT_90   3
+// #define SPRITE_ROT_180  4
+// #define SPRITE_ROT_270  5
+
 struct game_sprite
 {
     uint8_t width;
@@ -58,7 +65,8 @@ void game_draw_vline(int8_t x, int8_t y1, int8_t y2, uint8_t color); // vertical
 void game_draw_rect(int8_t x, int8_t y, int8_t w, int8_t h, uint8_t color);
 void game_draw_text(const uint8_t *s, int8_t x, int8_t y, uint8_t color, uint8_t bg = TRANSPARENT); // text is drawn with default 5x7 font
 void game_draw_char(uint8_t c, int8_t x, int8_t y, uint8_t color, uint8_t bg = TRANSPARENT); // char is drawn with default 5x7 font
-void game_draw_sprite(const struct game_sprite *s, int8_t x, int8_t y, uint8_t color);
+void game_draw_sprite(const struct game_sprite *s, int8_t x, int8_t y,
+                      uint8_t color, uint8_t rot = SPRITE_NORMAL);
 void game_draw_digits(uint16_t num, int8_t len, int8_t x, int8_t y, uint8_t color, uint8_t bg = TRANSPARENT);
 void game_draw_color_sprite(const struct game_color_sprite *s, int8_t x, int8_t y);
 /* Clear screen in frame buffer mode */
