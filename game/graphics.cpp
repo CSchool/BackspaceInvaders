@@ -85,7 +85,8 @@ const uint8_t *game_color_sprite_line(const struct game_color_sprite *s, uint8_t
     return game_sprite_width(s) * line + (const uint8_t*)pgm_read_pointer(&s->lines);
 }
 
-static void game_sprite_render_line(const struct game_sprite *s, uint8_t *buf, int8_t x, uint8_t y, int8_t color, uint8_t ry)
+static void game_sprite_render_line(const struct game_sprite *s, uint8_t *buf,
+    int8_t x, uint8_t y, int8_t color, uint8_t ry, uint8_t rot)
 {
     uint8_t line = ry - y;
     uint8_t mask = 0x80;
@@ -94,7 +95,11 @@ static void game_sprite_render_line(const struct game_sprite *s, uint8_t *buf, i
     uint8_t spr = pgm_read_byte(ptr);
     for (uint8_t dx = 0; dx < width; ++dx)
     {
-        int xx = x + dx;
+        int xx = x;
+        if (rot == SPRITE_NORMAL)
+            xx += dx;
+        else if (rot == SPRITE_MIRROR_H)
+            xx += width - 1 - dx;
         if (xx >= 0 && xx < WIDTH)
         {
             if (spr & mask)
@@ -130,7 +135,8 @@ static void game_color_sprite_render_line(const struct game_color_sprite *s,
     }
 }
 
-void game_draw_sprite(const struct game_sprite *s, int8_t x, int8_t y, uint8_t color)
+void game_draw_sprite(const struct game_sprite *s, int8_t x, int8_t y,
+                      uint8_t color, uint8_t rot)
 {
     uint8_t height = game_sprite_height(s);
 #ifdef FRAME_BUFFER
@@ -142,7 +148,7 @@ void game_draw_sprite(const struct game_sprite *s, int8_t x, int8_t y, uint8_t c
         if (ry < 0 || ry >= HEIGHT)
           continue;
         game_sprite_render_line(s, &frame[ry][0],
-          x, y, game_make_color(color), ry);
+          x, y, game_make_color(color), ry, rot);
       }
       return;
     }
@@ -153,7 +159,7 @@ void game_draw_sprite(const struct game_sprite *s, int8_t x, int8_t y, uint8_t c
     if (ry < (y + height))
     {
         game_sprite_render_line(s, game_render_buf + ((ry & ADDR_HIGH) << ADDR_SHIFT),
-          x, y, game_make_color(color), ry);
+          x, y, game_make_color(color), ry, rot);
     }
 }
 

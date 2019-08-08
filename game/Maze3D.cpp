@@ -369,7 +369,7 @@ static int8_t GetDy(uint8_t dir)
 }
 
 #define COLOR_SIDE RED_DARK
-#define COLOR_FRONT RED
+#define COLOR_FRONT RED_DARK
 
 static void Maze3D_draw()
 {
