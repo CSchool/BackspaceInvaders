@@ -4,6 +4,7 @@
 #include "graphics.h"
 #include "binary.h"
 #include "controls.h"
+#include "font.h"
 #include "music.h"
 #include "tunes.h"
 
@@ -344,10 +345,37 @@ static const uint8_t frontwall4Lines[] PROGMEM = {
 };
 static const game_sprite frontwall4sprite PROGMEM = {6, 6, frontwall4Lines};
 
+static const uint8_t goldLines[] PROGMEM = {
+    0x00, 0x00, 0x00, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x00, 0x00, 0x00, 
+    0x00, 0x00, 0x33, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x33, 0x00, 0x00, 
+    0x00, 0x33, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x33, 0x00, 
+    0x33, 0x11, 0x11, 0x11, 0x11, 0x44, 0x44, 0x11, 0x11, 0x11, 0x11, 0x33, 
+    0x33, 0x11, 0x11, 0x11, 0x44, 0x44, 0x44, 0x44, 0x11, 0x11, 0x11, 0x33, 
+    0x33, 0x33, 0x33, 0x33, 0x44, 0x00, 0x44, 0x44, 0x33, 0x33, 0x33, 0x33, 
+    0x44, 0x44, 0x44, 0x44, 0x44, 0x00, 0x00, 0x44, 0x44, 0x44, 0x44, 0x44, 
+    0x33, 0x33, 0x33, 0x33, 0x44, 0x44, 0x00, 0x44, 0x33, 0x33, 0x33, 0x33, 
+    0x33, 0x11, 0x11, 0x11, 0x44, 0x44, 0x44, 0x44, 0x11, 0x11, 0x11, 0x33, 
+    0x33, 0x11, 0x11, 0x11, 0x11, 0x44, 0x44, 0x11, 0x11, 0x11, 0x11, 0x33, 
+    0x33, 0x11, 0x11, 0x11, 0x11, 0x44, 0x44, 0x11, 0x11, 0x11, 0x11, 0x33, 
+    0x33, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x33, 
+    0x33, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x33, 
+    0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 
+};
+static const game_color_sprite goldSprite PROGMEM = {12, 14, goldLines};
+
+struct Pos
+{
+    int8_t x, y;
+};
+
+#define MAX_GOLD 20
 
 struct Maze3DData
 {
     int8_t x, y, dir;
+    Pos gold[MAX_GOLD];
+    int8_t gold_count;
+    int8_t score;
 };
 static Maze3DData* data;
 
@@ -356,6 +384,14 @@ static bool IsWall(uint8_t x, uint8_t y)
     uint16_t off = x / 8 + y * MW / 8;
     uint8_t walls = pgm_read_byte(maze + off);
     return walls & (1 << (7 - x % 8));
+}
+
+static bool IsGold(uint8_t x, uint8_t y)
+{
+    for (int8_t i = 0 ; i < data->gold_count ; ++i)
+        if (data->gold[i].x == x && data->gold[i].y == y)
+            return true;
+    return false;
 }
 
 static int8_t GetDx(uint8_t dir)
@@ -439,6 +475,11 @@ static void Maze3D_draw()
             game_draw_sprite(&sidewall1sprite, 47, 9, COLOR_SIDE, SPRITE_MIRROR_H);
         else if (IsWall(data->x + dxr + 2 * dx, data->y + dyr + 2 * dy))
             game_draw_sprite(&frontwall2sprite, 47, 17, COLOR_FRONT);
+
+        if (IsGold(data->x + dx, data->y + dy))
+        {
+            game_draw_color_sprite(&goldSprite, 26, 38);
+        }
     }
     if (IsWall(data->x + dxl, data->y + dyl))
         game_draw_sprite(&sidewall0sprite, 0, 0, COLOR_SIDE);
@@ -451,10 +492,11 @@ static void Maze3D_draw()
     // draw map
     const int mapX = 6;
     const int mapY = 6;
-    for (int8_t dx = -4 ; dx <= 4 ; ++dx)
+    const int mapSz = 4;
+    for (int8_t dx = -mapSz ; dx <= mapSz ; ++dx)
     {
         int8_t x = data->x + dx;
-        for (int8_t dy = -4 ; dy <= 4 ; ++dy)
+        for (int8_t dy = -mapSz ; dy <= mapSz ; ++dy)
         {
             int8_t y = data->y + dy;
             if (x < 0 || x >= MW || y < 0 || y >= MH
@@ -469,8 +511,21 @@ static void Maze3D_draw()
             
         }
     }
+    // draw gold
+    for (int8_t i = 0 ; i < data->gold_count ; ++i)
+    {
+        int8_t dx = data->gold[i].x - data->x;
+        int8_t dy = data->gold[i].y - data->y;
+        if (dx >= -mapSz && dx <= mapSz
+            && dy >= -mapSz && dy <= mapSz)
+        {
+            game_draw_pixel(mapX + dx, mapY + dy, YELLOW);
+        }
+    }
     // draw player on map
     game_draw_pixel(mapX, mapY, GREEN);
+    // draw score
+    game_draw_digits(data->score, 2, WIDTH - 2 * (DIGIT_WIDTH + 1), 0, YELLOW);
 }
 
 static void Maze3D_prepare()
@@ -481,6 +536,20 @@ static void Maze3D_prepare()
     data->y = 2;
     data->x = 7;
     data->dir = DOWN;
+
+    // place gold
+    for (int8_t i = 0 ; i < MAX_GOLD ; ++i)
+    {
+        int8_t x, y;
+        do
+        {
+            x = rand() % MW;
+            y = rand() % MH;
+        } while (IsWall(x, y));
+        data->gold[i] = {x, y};
+    }
+    data->gold_count = MAX_GOLD;
+    data->score = 0;
 
     Maze3D_draw();
 }
@@ -502,6 +571,14 @@ static void Maze3D_update(unsigned long delta)
             upd = true;
             data->x = x;
             data->y = y;
+            for (int8_t i = 0 ; i < data->gold_count ; ++i)
+            {
+                if (data->gold[i].x == x && data->gold[i].y == y)
+                {
+                    data->gold[i] = data->gold[--data->gold_count];
+                    ++data->score;
+                }
+            }
         }
     }
     else if (game_is_button_pressed(BUTTON_LEFT))
