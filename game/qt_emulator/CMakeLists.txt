@@ -15,7 +15,7 @@ target_sources(gamebox PUBLIC ../BackspaceInvaders.cpp ../BreakOut.cpp ../Flappy
                ../Raycaster.cpp ../Saper.cpp ../Snake.cpp ../Snail.cpp ../Snake2.cpp
                ../Tester.cpp ../Mario.cpp ../Ghostbuster.cpp ../SpaceShips.cpp
                ../LodeRunner.cpp ../TicTacToe.cpp ../NY2019.cpp ../Tetrisnake.cpp
-               ../DoodleJump.cpp ../ColorDemo.cpp ../SpriteDemo.cpp)
+               ../DoodleJump.cpp ../ColorDemo.cpp ../SpriteDemo.cpp ../Asteroids.cpp)
 
 target_sources(gamebox PUBLIC ../application.cpp ../avrfix.cpp ../menu.cpp ../random.cpp ../common_sprites.cpp)
 target_compile_definitions(gamebox PUBLIC EMULATED)

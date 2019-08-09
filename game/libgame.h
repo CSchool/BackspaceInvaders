@@ -55,6 +55,9 @@ extern const game_instance Tetrisnake PROGMEM;
 #endif
 extern const game_instance DoodleJump PROGMEM;
 
+/* LKSH 2019 */
+extern const game_instance Asteroids PROGMEM;
+
 /* Test applications */
 #ifndef EMULATED
 extern const game_instance Dump PROGMEM;
@@ -77,4 +80,4 @@ void game_setup();
 void game_save(const void *buf, uint16_t size);
 void game_load(void *buf, uint16_t size);
 
-#endif 
+#endif

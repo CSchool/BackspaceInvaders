@@ -10,6 +10,11 @@
 
 static const MenuItem main_menu[] PROGMEM = {
 #ifdef FRAME_BUFFER
+    { "\xcb\xca\xd8 2019", NULL },
+    { "Asteroids", &Asteroids },
+#endif
+
+#ifdef FRAME_BUFFER
     { "NY2019", NULL},
     { "Demo", &NY2019},
     { "Tetrisnake", &Tetrisnake },
