@@ -425,8 +425,8 @@ static void Asteroids_update(unsigned long delta) {
             for (uint8_t i = 0; i < MAX_BULLETS; ++i) {
                 if (data->bullets[i].ttl == 0) {
                     data->bullets[i].ttl = BULLET_TTL;
-                    data->bullets[i].vx = BULLET_SPEED * pgm_read_word(direction_x + data->player.ri);
-                    data->bullets[i].vy = BULLET_SPEED * pgm_read_word(direction_y + data->player.ri);
+                    data->bullets[i].vx = BULLET_SPEED * (int16_t)pgm_read_word(direction_x + data->player.ri);
+                    data->bullets[i].vy = BULLET_SPEED * (int16_t)pgm_read_word(direction_y + data->player.ri);
                     data->bullets[i].x = data->player.x + data->bullets[i].vx;
                     data->bullets[i].y = data->player.y + data->bullets[i].vy;
                     data->bullets[i].vx += data->player.vx;
@@ -438,13 +438,13 @@ static void Asteroids_update(unsigned long delta) {
     }
 
     if (game_is_button_pressed(BUTTON_B)) {
-        uint16_t ox = data->player.vx;
-        uint16_t oy = data->player.vy;
-        data->player.vx += delta * pgm_read_word(direction_x + data->player.ri) / 256;
-        data->player.vy += delta * pgm_read_word(direction_y + data->player.ri) / 256;
-        uint16_t x = data->player.vx / 256;
-        uint16_t y = data->player.vy / 256;
-        uint16_t t = x * x + y * y;
+        int16_t ox = data->player.vx;
+        int16_t oy = data->player.vy;
+        data->player.vx += delta * (int16_t)pgm_read_word(direction_x + data->player.ri) / 256;
+        data->player.vy += delta * (int16_t)pgm_read_word(direction_y + data->player.ri) / 256;
+        int16_t x = data->player.vx / 256;
+        int16_t y = data->player.vy / 256;
+        uint16_t t = (uint16_t)(x * x) + y * y;
         if (t > 255) {
             data->player.vx = ox;
             data->player.vy = oy;
@@ -458,8 +458,8 @@ static void Asteroids_update(unsigned long delta) {
                     data->particles[i].state = 1;
                     data->particles[i].x = data->player.x;
                     data->particles[i].y = data->player.y;
-                    data->particles[i].vx = -pgm_read_word(direction_x + data->player.ri);
-                    data->particles[i].vy = -pgm_read_word(direction_y + data->player.ri);
+                    data->particles[i].vx = -(int16_t)pgm_read_word(direction_x + data->player.ri);
+                    data->particles[i].vy = -(int16_t)pgm_read_word(direction_y + data->player.ri);
                     data->particles[i].x += 4 * data->particles[i].vx;
                     data->particles[i].y += 4 * data->particles[i].vy;
                     data->particles[i].vx += (int8_t)rand();
@@ -480,8 +480,8 @@ static void Asteroids_update(unsigned long delta) {
     }
 
     if (data->player.vi) {
-        uint16_t ox = data->player.vx;
-        uint16_t oy = data->player.vy;
+        int16_t ox = data->player.vx;
+        int16_t oy = data->player.vy;
 
         if (data->player.vx > 0) {
             data->player.vx -= data->player.vi * delta / PLAYER_DECELERATION;
@@ -497,7 +497,7 @@ static void Asteroids_update(unsigned long delta) {
 
         int16_t x = data->player.vx / 256;
         int16_t y = data->player.vy / 256;
-        uint16_t t = (uint16_t)(x * x) + (uint16_t)(y * y);
+        uint16_t t = (uint16_t)(x * x) + y * y;
         if (t > 255) {
             data->player.vx = ox;
             data->player.vy = oy;
