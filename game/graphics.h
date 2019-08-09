@@ -1,8 +1,10 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
+#include "config.h"
+
 // COLORS
-// 
+//
 // are defined as 6-bit integer: xBGRxbgr
 
 #define BLACK 0

@@ -17,11 +17,7 @@ target_sources(gamebox PUBLIC ../BackspaceInvaders.cpp ../BreakOut.cpp ../Flappy
                ../LodeRunner.cpp ../TicTacToe.cpp ../NY2019.cpp ../Tetrisnake.cpp
                ../DoodleJump.cpp ../ColorDemo.cpp ../SpriteDemo.cpp)
 
-target_sources(gamebox PUBLIC ../application.cpp ../avrfix.cpp ../menu.cpp
-                         ../random.cpp)
-
-target_sources(gamebox PUBLIC ../application.cpp ../avrfix.cpp
-			   ../menu.cpp ../random.cpp)
+target_sources(gamebox PUBLIC ../application.cpp ../avrfix.cpp ../menu.cpp ../random.cpp ../common_sprites.cpp)
 target_compile_definitions(gamebox PUBLIC EMULATED)
 
 # Use the Widgets module from Qt 5.

@@ -1,6 +1,7 @@
 #pragma GCC optimize ("-O3")
 
 #include "libgame.h"
+#include "common_sprites.h"
 #include "graphics.h"
 #include "binary.h"
 #include "controls.h"
@@ -117,31 +118,6 @@ enum Animation {
     ROPECLIMBING1,
 
     ANIMATION_MAX
-};
-
-#define GAMEOVER_X 16
-#define GAMEOVER_Y 24
-
-const uint8_t gameover_lines[] PROGMEM = {
-    B00111110, B00111000, B11000110, B11111110,
-    B01100000, B01101100, B11101110, B11000000,
-    B11000000, B11000110, B11111110, B11000000,
-    B11001110, B11000110, B11111110, B11111100,
-    B11000110, B11111110, B11010110, B11000000,  
-    B01100110, B11000110, B11000110, B11000000,
-    B00111110, B11000110, B11000110, B11111110,
-    B00000000, B00000000, B00000000, B00000000,
-    B01111100, B11000110, B11111110, B11111100,
-    B11000110, B11000110, B11000000, B11000110,
-    B11000110, B11000110, B11000000, B11000110,
-    B11000110, B11000110, B11111100, B11001110,
-    B11000110, B01101100, B11000000, B11111000,
-    B11000110, B00111000, B11000000, B11011100,
-    B01111100, B00010000, B11111110, B11001110
-};
-
-const game_sprite gameover_sprite PROGMEM = {
-    31, 15, gameover_lines
 };
 
 static const uint8_t player_standing_lines[] PROGMEM {
@@ -586,7 +562,7 @@ static bool wall_at_impl(int8_t x, int8_t y, uint8_t br, bool ignore)
             }
         }
     }
-    
+
     return false;
 }
 
@@ -648,7 +624,7 @@ static void pick_gold()
 static bool collide(int8_t x, int8_t y)
 {
     if (x < 0) return true;
-    if (x + BLOCK_WIDTH > data->level_width * BLOCK_WIDTH) return true; 
+    if (x + BLOCK_WIDTH > data->level_width * BLOCK_WIDTH) return true;
     if (wall_at(x, y + BLOCK_HEIGHT - 1)) return true;
     return false;
 }
@@ -726,7 +702,7 @@ static void LodeRunner_render()
     if (data->state == SELECTING) {
         menu_render(data->menu);
     }
-    if (data->state == PLAYING) { 
+    if (data->state == PLAYING) {
         game_draw_sprite(&player_sprites[data->player_anim],
                         data->player_x + SCREEN_PADDING_X,
                         data->player_y + SCREEN_PADDING_Y, GREEN);
@@ -806,7 +782,7 @@ static void LodeRunner_update(unsigned long delta)
         data->anim_update = data->time;
         do_anim = true;
     }
-    
+
     if (data->time - data->move_update > MOVE_INTERVAL) {
         do_move = true;
         data->move_update = data->time;
@@ -984,10 +960,10 @@ static void LodeRunner_update(unsigned long delta)
             init_level();
         }
 
-        if (wall_at_impl(data->player_x, data->player_y, 1, true) || 
+        if (wall_at_impl(data->player_x, data->player_y, 1, true) ||
                 wall_at_impl(data->player_x, data->player_y + BLOCK_HEIGHT - 1, 1, true)) {
             data->state = LOST;
-            game_draw_sprite(&gameover_sprite, GAMEOVER_X, GAMEOVER_Y, WHITE);
+            game_draw_sprite(game_get_sprite(SPRITE_GAMEOVER), GAMEOVER_X, GAMEOVER_Y, WHITE);
             return;
         }
     }
@@ -1155,12 +1131,12 @@ cnt:;
             if (dy < 0) dy = -dy;
             if (dx < BLOCK_WIDTH && dy < BLOCK_HEIGHT) {
                 data->state = LOST;
-                game_draw_sprite(&gameover_sprite, GAMEOVER_X, GAMEOVER_Y, WHITE);
+                game_draw_sprite(game_get_sprite(SPRITE_GAMEOVER), GAMEOVER_X, GAMEOVER_Y, WHITE);
                 return;
             }
         }
-        
- 
+
+
     }
 }
 
