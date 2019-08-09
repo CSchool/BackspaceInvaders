@@ -442,8 +442,8 @@ static void Asteroids_update(unsigned long delta) {
         uint16_t oy = data->player.vy;
         data->player.vx += delta * pgm_read_word(direction_x + data->player.ri) / 256;
         data->player.vy += delta * pgm_read_word(direction_y + data->player.ri) / 256;
-        uint16_t x = data->player.vx >> 8;
-        uint16_t y = data->player.vy >> 8;
+        uint16_t x = data->player.vx / 256;
+        uint16_t y = data->player.vy / 256;
         uint16_t t = x * x + y * y;
         if (t > 255) {
             data->player.vx = ox;
@@ -495,9 +495,9 @@ static void Asteroids_update(unsigned long delta) {
             data->player.vy += data->player.vi * delta / PLAYER_DECELERATION;
         }
 
-        uint16_t x = data->player.vx >> 8;
-        uint16_t y = data->player.vy >> 8;
-        uint16_t t = x * x + y * y;
+        int16_t x = data->player.vx / 256;
+        int16_t y = data->player.vy / 256;
+        uint16_t t = (uint16_t)(x * x) + (uint16_t)(y * y);
         if (t > 255) {
             data->player.vx = ox;
             data->player.vy = oy;
