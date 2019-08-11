@@ -1,6 +1,7 @@
 #pragma GCC optimize ("-O3")
 
 #include <stdint.h>
+#include "common_sprites.h"
 #include "libgame.h"
 #include "binary.h"
 #include "graphics.h"
@@ -196,40 +197,11 @@ const game_sprite cannon PROGMEM = {
 };
 
 ////////////////////////////////////////////////////////////
-// Game over data
-////////////////////////////////////////////////////////////
-
-#define GAMEOVER_X 16
-#define GAMEOVER_Y 24
-
-const uint8_t gameOverLines[] PROGMEM = {
-    B00111110, B00111000, B11000110, B11111110,
-    B01100000, B01101100, B11101110, B11000000,
-    B11000000, B11000110, B11111110, B11000000,
-    B11001110, B11000110, B11111110, B11111100,
-    B11000110, B11111110, B11010110, B11000000,  
-    B01100110, B11000110, B11000110, B11000000,
-    B00111110, B11000110, B11000110, B11111110,
-    B00000000, B00000000, B00000000, B00000000,
-    B01111100, B11000110, B11111110, B11111100,
-    B11000110, B11000110, B11000000, B11000110,
-    B11000110, B11000110, B11000000, B11000110,
-    B11000110, B11000110, B11111100, B11001110,
-    B11000110, B01101100, B11000000, B11111000,
-    B11000110, B00111000, B11000000, B11011100,
-    B01111100, B00010000, B11111110, B11001110
-};
-
-const game_sprite gameOver PROGMEM = {
-    31, 15, gameOverLines
-};
-
-////////////////////////////////////////////////////////////
 // Lives data
 ////////////////////////////////////////////////////////////
 
 #define LIFE_X 1
-#define LIFE_Y 2 
+#define LIFE_Y 2
 const uint8_t lifeLines[] PROGMEM = {
     B01000000,
     B11100000,
@@ -244,7 +216,7 @@ const game_sprite life PROGMEM = {
 // Hiscore data
 ////////////////////////////////////////////////////////////
 
-#define HISCORE_LABEL_X 40 
+#define HISCORE_LABEL_X 40
 #define HISCORE_LABEL_Y 1
 const uint8_t hiLines[] PROGMEM = {
     B10101110,
@@ -365,7 +337,7 @@ void BackspaceInvaders_render()
 
     // draw gameover
     if (data->phase == PHASE_GAMEOVER)
-        game_draw_sprite(&gameOver, GAMEOVER_X, GAMEOVER_Y, WHITE);
+        game_draw_sprite(game_get_sprite(SPRITE_GAMEOVER), GAMEOVER_X, GAMEOVER_Y, WHITE);
 
     if (data->phase == PHASE_PAUSED)
         game_draw_sprite(&pause, PAUSE_X, PAUSE_Y, WHITE);
@@ -497,7 +469,7 @@ void BackspaceInvaders_update(unsigned long delta) {
 
     if ((data->phase == PHASE_GAME || data->phase == PHASE_NEXT_WAVE) && curTime - data->moveTime >= 20)
     {
-        data->moveTime = curTime;  
+        data->moveTime = curTime;
 
         // intersections
         // shoot enemy
@@ -542,7 +514,7 @@ void BackspaceInvaders_update(unsigned long delta) {
             // kill cannon
             for (int i = 0 ; i < data->wave ; ++i)
             {
-                if (data->invaderType[i] 
+                if (data->invaderType[i]
                         && intersectRect(data->cannonX, data->cannonY, game_sprite_width(&cannon), game_sprite_height(&cannon), data->invaderX[i], data->invaderY[i], invader_width(data->invaderType[i]), invader_height(data->invaderType[i])))
                 {
                     --data->lives;
