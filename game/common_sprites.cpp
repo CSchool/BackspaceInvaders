@@ -1,7 +1,7 @@
 #include "common_sprites.h"
 #include "binary.h"
 
-const uint8_t gameover_lines[] PROGMEM = {
+static const uint8_t gameover_lines[] PROGMEM = {
     B00111110, B00111000, B11000110, B11111110,
     B01100000, B01101100, B11101110, B11000000,
     B11000000, B11000110, B11111110, B11000000,
@@ -19,7 +19,7 @@ const uint8_t gameover_lines[] PROGMEM = {
     B01111100, B00010000, B11111110, B11001110
 };
 
-const game_sprite gameover_sprite PROGMEM = {
+static const game_sprite gameover_sprite PROGMEM = {
     31, 15, gameover_lines
 };
 
@@ -27,7 +27,9 @@ const game_sprite gameover_sprite PROGMEM = {
 const game_sprite *game_get_sprite(uint8_t id)
 {
     switch (id) {
-        case SPRITE_GAMEOVER: return &gameover_sprite;
-        default: return NULL;
+        case SPRITE_GAMEOVER:
+            return &gameover_sprite;
+        default:
+            return NULL;
     }
 }

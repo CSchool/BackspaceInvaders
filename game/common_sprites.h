@@ -1,9 +1,11 @@
-#ifndef _COMMON_SPRITES_H_
-#define _COMMON_SPRITES_H_
+#ifndef COMMON_SPRITES_H_
+#define COMMON_SPRITES_H_
 
 #include "graphics.h"
 
-#define SPRITE_GAMEOVER 0
+enum {
+    SPRITE_GAMEOVER,
+};
 
 #define GAMEOVER_X 16
 #define GAMEOVER_Y 24

@@ -2,6 +2,7 @@
 
 #include "libgame.h"
 #include "graphics.h"
+#include "common_sprites.h"
 #include "binary.h"
 #include "controls.h"
 #include "font.h"
@@ -556,6 +557,11 @@ static void Maze3D_draw()
     game_draw_digits(data->score, 3, WIDTH - 3 * (DIGIT_WIDTH + 1), 0, YELLOW);
     // draw hp
     game_draw_digits(data->hp, 3, WIDTH - 7 * (DIGIT_WIDTH + 1), 0, RED);
+    // draw game over
+    if (data->hp == 0)
+    {
+        game_draw_sprite(game_get_sprite(SPRITE_GAMEOVER), GAMEOVER_X, GAMEOVER_Y, WHITE);
+    }
 }
 
 static void Maze3D_prepare()
@@ -607,48 +613,51 @@ static void Maze3D_update(unsigned long delta)
 {
     bool upd = false;
  
-    if (game_is_button_pressed(BUTTON_UP))
+    if (data->hp > 0)
     {
-        int8_t x = data->x + GetDx(data->dir);
-        int8_t y = data->y + GetDy(data->dir);
-        if (!IsWall(x, y))
+        if (game_is_button_pressed(BUTTON_UP))
         {
-            upd = true;
-            data->x = x;
-            data->y = y;
-            for (int8_t i = 0 ; i < data->gold_count ; ++i)
+            int8_t x = data->x + GetDx(data->dir);
+            int8_t y = data->y + GetDy(data->dir);
+            if (!IsWall(x, y))
             {
-                if (data->gold[i].x == x && data->gold[i].y == y)
+                upd = true;
+                data->x = x;
+                data->y = y;
+                for (int8_t i = 0 ; i < data->gold_count ; ++i)
                 {
-                    data->gold[i] = data->gold[--data->gold_count];
-                    ++data->score;
-                }
-            }
-            for (int8_t i = 0 ; i < data->monster_count ; ++i)
-            {
-                if (data->monster[i].x == x && data->monster[i].y == y)
-                {
-                    data->monster[i] = data->monster[--data->monster_count];
-                    int8_t strength = rand() % 20;
-                    data->hp -= strength;
-                    if (data->hp < 0)
+                    if (data->gold[i].x == x && data->gold[i].y == y)
                     {
-                        data->hp = 0;
+                        data->gold[i] = data->gold[--data->gold_count];
+                        ++data->score;
                     }
-                    data->score += strength;
+                }
+                for (int8_t i = 0 ; i < data->monster_count ; ++i)
+                {
+                    if (data->monster[i].x == x && data->monster[i].y == y)
+                    {
+                        data->monster[i] = data->monster[--data->monster_count];
+                        int8_t strength = rand() % 20;
+                        data->hp -= strength;
+                        if (data->hp < 0)
+                        {
+                            data->hp = 0;
+                        }
+                        data->score += strength;
+                    }
                 }
             }
         }
-    }
-    else if (game_is_button_pressed(BUTTON_LEFT))
-    {
-        upd = true;
-        data->dir = CCW(data->dir);
-    }
-    else if (game_is_button_pressed(BUTTON_RIGHT))
-    {
-        upd = true;
-        data->dir = CW(data->dir);
+        else if (game_is_button_pressed(BUTTON_LEFT))
+        {
+            upd = true;
+            data->dir = CCW(data->dir);
+        }
+        else if (game_is_button_pressed(BUTTON_RIGHT))
+        {
+            upd = true;
+            data->dir = CW(data->dir);
+        }
     }
 
     if (upd)
