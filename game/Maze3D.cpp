@@ -141,15 +141,15 @@ static const uint8_t sidewall1Lines[] PROGMEM = {
     B11110111, 
     B11111011, 
     B11111000, 
-    B01111011, 
-    B00011011, 
-    B11001011, 
+    B11111011, 
+    B00111011, 
+    B00001011, 
     B11010011, 
     B11011100, 
     B11011111, 
     B11011111, 
     B11011111, 
-    B00011111, 
+    B11011111, 
     B00000000, 
     B11111011, 
     B11111011, 
@@ -369,12 +369,16 @@ struct Pos
 };
 
 #define MAX_GOLD 20
+#define MAX_MONSTER 20
 
 struct Maze3DData
 {
     int8_t x, y, dir;
+    int8_t hp;
     Pos gold[MAX_GOLD];
+    Pos monster[MAX_MONSTER];
     int8_t gold_count;
+    int8_t monster_count;
     int8_t score;
 };
 static Maze3DData* data;
@@ -390,6 +394,14 @@ static bool IsGold(uint8_t x, uint8_t y)
 {
     for (int8_t i = 0 ; i < data->gold_count ; ++i)
         if (data->gold[i].x == x && data->gold[i].y == y)
+            return true;
+    return false;
+}
+
+static bool IsMonster(uint8_t x, uint8_t y)
+{
+    for (int8_t i = 0 ; i < data->monster_count ; ++i)
+        if (data->monster[i].x == x && data->monster[i].y == y)
             return true;
     return false;
 }
@@ -480,6 +492,11 @@ static void Maze3D_draw()
         {
             game_draw_color_sprite(&goldSprite, 26, 38);
         }
+
+        if (IsMonster(data->x + dx, data->y + dy))
+        {
+            game_draw_rect(26, 38, 16, 16, GREEN);
+        }
     }
     if (IsWall(data->x + dxl, data->y + dyl))
         game_draw_sprite(&sidewall0sprite, 0, 0, COLOR_SIDE);
@@ -522,10 +539,23 @@ static void Maze3D_draw()
             game_draw_pixel(mapX + dx, mapY + dy, YELLOW);
         }
     }
+    // draw monsters
+    for (int8_t i = 0 ; i < data->monster_count ; ++i)
+    {
+        int8_t dx = data->monster[i].x - data->x;
+        int8_t dy = data->monster[i].y - data->y;
+        if (dx >= -mapSz && dx <= mapSz
+            && dy >= -mapSz && dy <= mapSz)
+        {
+            game_draw_pixel(mapX + dx, mapY + dy, GREEN);
+        }
+    }
     // draw player on map
-    game_draw_pixel(mapX, mapY, GREEN);
+    game_draw_pixel(mapX, mapY, WHITE);
     // draw score
-    game_draw_digits(data->score, 2, WIDTH - 2 * (DIGIT_WIDTH + 1), 0, YELLOW);
+    game_draw_digits(data->score, 3, WIDTH - 3 * (DIGIT_WIDTH + 1), 0, YELLOW);
+    // draw hp
+    game_draw_digits(data->hp, 3, WIDTH - 7 * (DIGIT_WIDTH + 1), 0, RED);
 }
 
 static void Maze3D_prepare()
@@ -536,6 +566,7 @@ static void Maze3D_prepare()
     data->y = 2;
     data->x = 7;
     data->dir = DOWN;
+    data->hp = 100;
 
     // place gold
     for (int8_t i = 0 ; i < MAX_GOLD ; ++i)
@@ -549,6 +580,20 @@ static void Maze3D_prepare()
         data->gold[i] = {x, y};
     }
     data->gold_count = MAX_GOLD;
+
+    // place monster
+    for (int8_t i = 0 ; i < MAX_MONSTER ; ++i)
+    {
+        int8_t x, y;
+        do
+        {
+            x = rand() % MW;
+            y = rand() % MH;
+        } while (IsWall(x, y));
+        data->monster[i] = {x, y};
+    }
+    data->monster_count = MAX_MONSTER;
+
     data->score = 0;
 
     Maze3D_draw();
@@ -577,6 +622,20 @@ static void Maze3D_update(unsigned long delta)
                 {
                     data->gold[i] = data->gold[--data->gold_count];
                     ++data->score;
+                }
+            }
+            for (int8_t i = 0 ; i < data->monster_count ; ++i)
+            {
+                if (data->monster[i].x == x && data->monster[i].y == y)
+                {
+                    data->monster[i] = data->monster[--data->monster_count];
+                    int8_t strength = rand() % 20;
+                    data->hp -= strength;
+                    if (data->hp < 0)
+                    {
+                        data->hp = 0;
+                    }
+                    data->score += strength;
                 }
             }
         }
