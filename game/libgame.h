@@ -47,6 +47,7 @@ extern const game_instance Minecraft PROGMEM;
 extern const game_instance Ghostbuster PROGMEM;
 /*extern const game_instance artyom;*/
 extern const game_instance TicTacToe PROGMEM;
+extern const game_instance VVVV PROGMEM;
 
 /* NY2019 mini-hackaton */
 #ifdef FRAME_BUFFER
