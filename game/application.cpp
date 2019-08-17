@@ -10,16 +10,12 @@
 
 static const MenuItem main_menu[] PROGMEM = {
     { "Pacman", &Pacman},
-    { "\xcb\xca\xd8 2016", NULL },
-    { "Invaders", &BackspaceInvaders },
-    { "Snake", &Snake },
-
-    { "\xcb\xca\xd8 2017", NULL },
-    { "Flappy", &Flappy },
-    { "BreakOut", &BreakOut },
 #ifdef FRAME_BUFFER
-    { "Saper", &Saper },
+    { "NY2019", NULL},
+    { "Demo", &NY2019},
+    { "Tetrisnake", &Tetrisnake },
 #endif
+    { "DoodleJump", &DoodleJump },
 
     { "\xcb\xca\xd8 2018", NULL },
 #ifdef FRAME_BUFFER
@@ -34,6 +30,17 @@ static const MenuItem main_menu[] PROGMEM = {
 
 /* Not finished    { "artyom", &artyom }, */
 
+    { "\xcb\xca\xd8 2017", NULL },
+    { "Flappy", &Flappy },
+    { "BreakOut", &BreakOut },
+#ifdef FRAME_BUFFER
+    { "Saper", &Saper },
+#endif
+
+    { "\xcb\xca\xd8 2016", NULL },
+    { "Invaders", &BackspaceInvaders },
+    { "Snake", &Snake },
+
     { "Demos", NULL },
     { "3D", &Raycaster },
 #ifndef EMULATED /* for use only on real hardware */
@@ -41,6 +48,10 @@ static const MenuItem main_menu[] PROGMEM = {
     { "EEPROM", &Dump },
     { "Music", &Player },
 #endif
+#ifdef FRAME_BUFFER
+    { "ColorDemo", &ColorDemo},
+#endif
+    { "SpriteDemo", &SpriteDemo},
     /* Register your game like so:
      *
      * { "YOUR_GAME_NAME", &YOUR_GAME_NAME },

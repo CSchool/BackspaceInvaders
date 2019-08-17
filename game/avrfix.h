@@ -44,11 +44,11 @@ typedef signed long  lfix_t;
 
 /* Pragmas for defining overflow behaviour */
 
-#define DEFAULT    0
+#define DEFAULTO    0
 #define SAT        1
 
 #ifndef FX_ACCUM_OVERFLOW
-#define FX_ACCUM_OVERFLOW DEFAULT
+#define FX_ACCUM_OVERFLOW DEFAULTO
 #endif
 
 /* Pragmas for internal use */
@@ -133,7 +133,7 @@ sfix_t sdivskS(sfix_t, sfix_t);
 fix_t divkS(fix_t, fix_t);
 lfix_t ldivlkS(lfix_t, lfix_t);
 
-#if FX_ACCUM_OVERFLOW == DEFAULT
+#if FX_ACCUM_OVERFLOW == DEFAULTO
   #define smulsk(a,b) smulskD((a),(b))
   #define mulk(a,b) mulkD((a),(b))
   #define lmullk(a,b) lmullkD((a), (b))
@@ -175,7 +175,7 @@ lfix_t ldivlkS(lfix_t, lfix_t);
 #define idivkS(a,b) ktoi(divkS((a),(b)))
 #define idivlkS(a,b) lktoi(ldivlkS((a),(b)))
 
-#if FX_ACCUM_OVERFLOW == DEFAULT
+#if FX_ACCUM_OVERFLOW == DEFAULTO
   #define mulik(a,b) mulikD((a),(b))
   #define mulilk(a,b) mulilkD((a),(b))
   #define divik(a,b) divikD((a),(b))
@@ -211,7 +211,7 @@ sfix_t roundskS(sfix_t f, uint8_t n);
 fix_t roundkS(fix_t f, uint8_t n);
 lfix_t roundlkS(lfix_t f, uint8_t n);
 
-#if FX_ACCUM_OVERFLOW == DEFAULT
+#if FX_ACCUM_OVERFLOW == DEFAULTO
   #define roundsk(f, n) roundskD((f), (n))
   #define roundk(f, n) roundkD((f), (n))
   #define roundlk(f, n) roundlkD((f), (n))
@@ -240,7 +240,7 @@ fix_t sqrtk_uncorrected(fix_t,int8_t,uint8_t);
 #define sqrtkS(a)   mulkS(sqrtk_uncorrected(a, -8, 17), CORDICH_GAIN/256)
 #define lsqrtlkS(a) lmullkS(sqrtk_uncorrected(a, 0, 24), CORDICH_GAIN)
 
-#if FX_ACCUM_OVERFLOW == DEFAULT
+#if FX_ACCUM_OVERFLOW == DEFAULTO
   #define sqrtk(a) sqrtkD(a)
   #define lsqrtlk(a) lsqrtlkD(a)
 #else
@@ -271,7 +271,7 @@ fix_t tankS(fix_t);
 lfix_t ltanlkS(lfix_t);
 lfix_t ltankS(fix_t);
 
-#if FX_ACCUM_OVERFLOW == DEFAULT
+#if FX_ACCUM_OVERFLOW == DEFAULTO
   #define tank(a) tankD((a))
   #define ltanlk(a) ltanlkD((a))
   #define ltank(a) ltankD((a))
@@ -300,4 +300,3 @@ lfix_t lloglk(lfix_t);
 
 
 #endif /* _AVRFIX_H */
-

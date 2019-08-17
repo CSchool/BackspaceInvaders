@@ -45,4 +45,3 @@ void loop()
         last_update = cur_time;
     }
 }
-

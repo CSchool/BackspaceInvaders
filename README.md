@@ -160,6 +160,7 @@ Almost working tic-tac-toe game.
 * rogue-like
 * Doom-like
 * Klad
+* Jumping jack
 * True breakout-like game
 * Anything else from Atari 2600
 * http://www.mithotronic.de/ledmeplay_games_overview.html

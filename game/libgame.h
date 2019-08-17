@@ -43,16 +43,32 @@ extern const game_instance LodeRunner PROGMEM;
 #endif
 extern const game_instance SpaceShips PROGMEM;
 extern const game_instance Mario PROGMEM;
+extern const game_instance Minecraft PROGMEM;
 extern const game_instance Ghostbuster PROGMEM;
 /*extern const game_instance artyom;*/
 extern const game_instance TicTacToe PROGMEM;
+
 extern const game_instance Pacman PROGMEM;
+
+
+/* NY2019 mini-hackaton */
+#ifdef FRAME_BUFFER
+extern const game_instance NY2019 PROGMEM;
+extern const game_instance Tetrisnake PROGMEM;
+#endif
+extern const game_instance DoodleJump PROGMEM;
+
+
 /* Test applications */
 #ifndef EMULATED
 extern const game_instance Dump PROGMEM;
 extern const game_instance Player PROGMEM;
 #endif
 extern const game_instance Tester PROGMEM;
+#ifdef FRAME_BUFFER
+extern const game_instance ColorDemo PROGMEM;
+extern const game_instance SpriteDemo PROGMEM;
+#endif
 
 /* Register your game like so:
  *
