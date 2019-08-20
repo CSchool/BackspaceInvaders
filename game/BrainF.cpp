@@ -216,16 +216,17 @@ static void BrainF_setmap(int x1, int z1, uint8_t mmapX, uint8_t a)
   data->chars[mmapX][x1][z1] =  a;
 
 }
-
+static const uint8_t col[19] PROGMEM ={0, '0'/*1*/, '1'/*2*/, '2',
+                                    '3',  '4', '5', '6', '7', '8', '9'/*10*/, '<'/*11*/, '>'/*12*/, '+'/*13*/,
+                                    '-'/*14*/, '.'/*15*/, ','/*16*/, '['/*17*/, ']'/*18*/
+                                   }
+;
 static uint8_t BrainF_getcharmap(uint8_t x1, uint8_t z1, uint8_t mmapX)
 {
-  const uint8_t col[19] PROGMEM = {0, "0"/*1*/, "1"/*2*/, "2",
-                                    "3",  "4", "5", "6", "7", "8", "9"/*10*/, "<"/*11*/, ">"/*12*/, "+"/*13*/,
-                                    "-"/*14*/, "."/*15*/, ","/*16*/, "["/*17*/, "]"/*18*/
-                                   };
+
 
   if  ((data->chars[mmapX][x1][z1] >= 0) && (data->chars[mmapX][x1][z1] <= 19))
-    return (uint8_t)col[data->chars[mmapX][x1][z1]];
+    return (uint8_t)pgm_read_byte(&col[data->chars[mmapX][x1][z1]]);
   return (uint8_t)0;
 }
 static uint8_t BrainF_getmap(uint8_t x1, uint8_t z1, uint8_t mmapX)
@@ -257,7 +258,7 @@ static void BrainF_render()
     for (int i = 0; 9 > i; i++)
       for (int j = 0; 12 > j; j++)
         if (BrainF_getmap(j, i, data->MapX) != 0)
-          game_draw_text(BrainF_getcharmap(j, i, data->MapX), (j) * 5, (i) * 7, WHITE);
+          game_draw_char(BrainF_getcharmap(j, i, data->MapX), (j) * 5, (i) * 7, WHITE);
     /* Здесь код, который будет вывзваться для отрисовки кадра */
     if (data->Timer < 300)
       game_draw_text((uint8_t*)"_", data->CursorposX, data->CursorposY, WHITE);
