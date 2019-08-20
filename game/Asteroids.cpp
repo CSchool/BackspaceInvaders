@@ -25,6 +25,15 @@
 #define PLAYER_ACCELERATION 3
 #define PLAYER_ROT_DECELERATION 100
 #define PLAYER_ROT_ACCELERATION 40
+#define PLAYER_RADIUS 3
+#define PLAYER_LIVES 3
+
+static const uint8_t life_lines[] PROGMEM = {
+    B01000000,
+    B11100000,
+    B10100000,
+};
+static const game_sprite life_sprite PROGMEM = {3, 3, life_lines};
 
 static const uint8_t asteroid1_lines[] PROGMEM {
     B01100000,
@@ -316,6 +325,7 @@ struct AsteroidsData {
     Bullet bullets[MAX_BULLETS];
     uint8_t next_particle;
     uint8_t next_bullet;
+    uint8_t lives;
 };
 static AsteroidsData* data;
 
@@ -323,9 +333,23 @@ inline uint16_t u16inv(uint16_t x) {
     return 65535 / x;
 }
 
+static bool check_death() {
+    for (uint8_t i = 0; i < MAX_ASTEROIDS; ++i) {
+        if (data->asteroids[i].type) {
+            if (check_collision(data->asteroids[i].type, data->asteroids[i].x >> 8,
+                    data->asteroids[i].y >> 8, data->player.x >> 8,
+                    data->player.y >> 8, PLAYER_RADIUS)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 static void Asteroids_prepare() {
     data->next_particle = 0;
     data->next_bullet = 0;
+    data->lives = PLAYER_LIVES;
     data->player.x = 32 * 256;
     data->player.y = 32 * 256;
     data->player.vx = data->player.vy = 0;
@@ -345,13 +369,15 @@ static void Asteroids_prepare() {
         data->bullets[i].ttl = 0;
     }
 
-    for (uint8_t i = 0; i < INITIAL_ASTEROIDS; ++i) {
-        data->asteroids[i].type = ASTEROID_TYPES;
-        data->asteroids[i].x = (rand() % WIDTH) << 8;
-        data->asteroids[i].y = (rand() % HEIGHT) << 8;
-        data->asteroids[i].vx = (int8_t)rand();
-        data->asteroids[i].vy = (int8_t)rand();
-    }
+    do {
+        for (uint8_t i = 0; i < INITIAL_ASTEROIDS; ++i) {
+            data->asteroids[i].type = ASTEROID_TYPES;
+            data->asteroids[i].x = (rand() % WIDTH) << 8;
+            data->asteroids[i].y = (rand() % HEIGHT) << 8;
+            data->asteroids[i].vx = (int8_t)rand();
+            data->asteroids[i].vy = (int8_t)rand();
+        }
+    } while (check_death());
 }
 
 static void Asteroids_render() {
@@ -400,9 +426,34 @@ static void Asteroids_render() {
     game_draw_sprite(&player_sprites[data->player.ri],
         data->player.x / 256 - PLAYER_CENTER_X,
         data->player.y / 256 - PLAYER_CENTER_Y, CYAN);
+
+    for (uint8_t i = 0; i < data->lives; ++i) {
+        game_draw_sprite(&life_sprite, 1 + i * 4, 1, GREEN);
+    }
 }
 
 static void Asteroids_update(unsigned long delta) {
+    if (check_death()) {
+        if (data->lives > 0) {
+            --data->lives;
+        } else {
+            Asteroids_prepare();
+            return;
+        }
+
+        data->player.x = 32 * 256;
+        data->player.y = 32 * 256;
+        data->player.vx = data->player.vy = 0;
+        data->player.r = 0;
+        data->player.ri = 0;
+        data->player.vi = 0;
+
+        while (check_death()) {
+            data->player.x = rand() & 0x3fff;
+            data->player.y = rand() & 0x3fff;
+        }
+    }
+
     if (game_is_button_pressed(BUTTON_LEFT)) {
         data->player.r += delta * PLAYER_ROT_ACCELERATION;
     }
