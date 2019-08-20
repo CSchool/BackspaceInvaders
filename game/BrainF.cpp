@@ -217,16 +217,16 @@ static void BrainF_setmap(int x1, int z1, uint8_t mmapX, uint8_t a)
 
 }
 
-static uint8_t* BrainF_getcharmap(uint8_t x1, uint8_t z1, uint8_t mmapX)
+static uint8_t BrainF_getcharmap(uint8_t x1, uint8_t z1, uint8_t mmapX)
 {
-  const uint8_t* col[19] PROGMEM = {0, "0"/*1*/, "1"/*2*/, "2",
+  const uint8_t col[19] PROGMEM = {0, "0"/*1*/, "1"/*2*/, "2",
                                     "3",  "4", "5", "6", "7", "8", "9"/*10*/, "<"/*11*/, ">"/*12*/, "+"/*13*/,
                                     "-"/*14*/, "."/*15*/, ","/*16*/, "["/*17*/, "]"/*18*/
                                    };
 
   if  ((data->chars[mmapX][x1][z1] >= 0) && (data->chars[mmapX][x1][z1] <= 19))
-    return (const uint8_t*)col[data->chars[mmapX][x1][z1]];
-  return (const uint8_t*)0;
+    return (uint8_t)col[data->chars[mmapX][x1][z1]];
+  return (uint8_t)0;
 }
 static uint8_t BrainF_getmap(uint8_t x1, uint8_t z1, uint8_t mmapX)
 {
@@ -260,7 +260,7 @@ static void BrainF_render()
           game_draw_text(BrainF_getcharmap(j, i, data->MapX), (j) * 5, (i) * 7, WHITE);
     /* Здесь код, который будет вывзваться для отрисовки кадра */
     if (data->Timer < 300)
-      game_draw_text("_", data->CursorposX, data->CursorposY, WHITE);
+      game_draw_text((uint8_t*)"_", data->CursorposX, data->CursorposY, WHITE);
   } else if (data->Menu == 1) {
       for (int j = 0; 12 > j; j++)
       for (int i = 0; 3 > i; i++)
@@ -268,14 +268,13 @@ static void BrainF_render()
           game_draw_char(data->input[i*12+j], (j) * 5, (i) * 7, WHITE);
     /* Здесь код, который будет вывзваться для отрисовки кадра */
     if (data->Timer < 300)
-      game_draw_text("_", data->CursorposX, data->CursorposY, WHITE);
+      game_draw_text((uint8_t*)"_", data->CursorposX, data->CursorposY, WHITE);
 
   } else {
     for (int i = 0; i < data->outputX; i++)
       //  if (data->output[i] > 9)
     {
-      uint8_t* s = data->output[i];
-      game_draw_char(s, i * 6, 32, WHITE);
+      game_draw_char(data->output[i], i * 6, 32, WHITE);
     }
     // else
     game_draw_text((uint8_t*)"Download", 0, 0, RED);
