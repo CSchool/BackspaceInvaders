@@ -14,6 +14,7 @@ static const MenuItem main_menu[] PROGMEM = {
     { "Minecraft", &Minecraft},
     { "Demo", &NY2019},
     { "Tetrisnake", &Tetrisnake },
+    { "BrainF",&BrainF},
 #endif
     { "DoodleJump", &DoodleJump },
 
