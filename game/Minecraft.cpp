@@ -9,7 +9,6 @@
 
 
 /* Встроенные цвета:
-
     BLACK - Чёрный
     BLUE - Синий
     GREEN - Зелёный
@@ -18,36 +17,24 @@
     PURPLE - Фиолетовый
     BROWN - Коричневый
     WHITE - Белый
-
     Для использования 64-х цветной палитры, укажите в game.ino COLOR_6BIT = 1
-
  * */
 
 /* Кнопки:
-
    НА КОРПУСЕ:
    BUTTON_SW, BUTTON_NW, BUTTON_SE, BUTTON_NE
-
    NW              NE
     SW            SE
-
-
    НА ДЖОЙСТИКЕ:
    BUTTON_UP, BUTTON_LEFT, BUTTON_RIGHT, BUTTON_DOWN, BUTTON_SELECT, BUTTON_START, BUTTON_A, BUTTON_B
-
         UP
     LEFT+RIGHT     SELECT  START      B  A
        DOWN
-
  * */
 
 /* Спрайты
-
    максимальная высота - 16 пикселей
-
   определение спрайта
-
-
    x     x
     x   x
      x x
@@ -58,10 +45,7 @@
   xxxxxxxxx
     x x x
    x     x
-
-
   --------------------------------
-
   const uint8_t YourSprite_lines[] PROGMEM = {
     B00010000, B01000000,
     B00001000, B10000000,
@@ -74,7 +58,6 @@
     B00001010, B10000000,
     B00010000, B01000000
   };
-
   const game_sprite YourSprite PROGMEM = {
     // ШИРИНА, ВЫСОТА, ДАННЫЕ
     13, 10, YourSprite_lines
@@ -97,7 +80,6 @@
     B00000000, B00000000, B00000000,/ *15* /
     B00000000, B00000000, B00000000 / *16* /
   };
-
   const game_sprite YourSprite PROGMEM = {
     // ШИРИНА, ВЫСОТА, ДАННЫЕ
     16, 16, YourSprite_lines
@@ -105,19 +87,15 @@
 */
 
 /* Функции отрисовки
-
    game_draw_pixel(x, y, color) - Красит точку (x, y) в цвет color
    game_draw_char(char, x, y, color) - Выводит символ char с левым верхним углом в точке (x, y) с цветом color
    game_draw_text(string, x, y, color) - Выводит строку string с левым верхним углом в точке (x, y) с цветом color
    game_draw_sprite(sprite, x, y, color) - Выводит спрайт sprite с левым верхним углом в точке (x, y) с цветом color
-
  * */
 
 /* Функции ввода
-
    game_is_button_pressed(button) - Нажата ли кнопка? Например: game_is_button_pressed(BUTTON_START)
    game_is_any_button_pressed(mask) - Нажата ли хотя бы одна кнопка? Например: game_is_any_button_pressed(BITMASK(BUTTON_SW) | BITMASK(BUTTON_DOWN))
-
  * */
 #define GR 0x70//серый
 #define BR 0x31//коричневый
@@ -127,7 +105,7 @@
 #define T TRANSPARENT
 #define K BLACK
 #define B BLUE
-#define WaterLine 60
+#define WaterLine 40
 //#define Y YELLOW
 //#define W WHITE
 //const uint8_t TestBlock_lines[] PROGMEM = {
@@ -212,7 +190,10 @@ struct MinecraftData
   int XYZCube;
   int XYZCubeNumber;
   uint8_t fps;
-  Vector3D UxUy, Uxy, xUy, xy;
+  int SavePositionX;
+  int SavePositionZ;
+  bool RenRed;
+  //Vector3D UxUy, Uxy, xUy, xy;
 };
 
 
@@ -229,7 +210,7 @@ static MinecraftData* data;
 //**********************SIN**********************SIN**********************SIN**********************SIN**********************
 static float Minecraft_sin(int sinx)
 {
-  sinx = sinx % 360;
+  //sinx = sinx % 360;
   if ((sinx >= 0) && (sinx <= 360)) {
     return ( ((int)pgm_read_byte(&mysinarray[sinx]) - (int)128) * (float)0.01);
   }
@@ -237,7 +218,7 @@ static float Minecraft_sin(int sinx)
   if ((sinx >= -359) && (sinx < 0)) {
     return ( ((int)pgm_read_byte(&mysinarray[sinx + 359]) - (int)128) * (float)0.01);
   }
-  //game_draw_text("error",32,32,RED,TRANSPARENT);
+  game_draw_text("error", 32, 32, RED);
   game_draw_digits(sinx, 6, 32, 32, RED );
 }
 //**********************SIN**********************SIN**********************SIN**********************SIN**********************
@@ -252,23 +233,32 @@ static float Minecraft_cos(int cosx)
 //**********************RAND**********************RAND**********************RAND**********************RAND**********************
 static int Minecraft_random()
 {
-  data->v_rand = (data->v_rand * 419 + 6173) % 32000;
-  return abs(data->v_rand % 29282);
+  data->v_rand = (data->v_rand * 2 + 6173) % 10000;
+  return abs(data->v_rand);
 }
 
 //**********************RAND**********************RAND**********************RAND**********************RAND**********************
 //**********************MAP**********************MAP**********************MAP**********************MAP**********************
 static uint8_t Minecraft_rendermap()
 {
+  data->RenRed = true;
   int x1;
   int z1;
-  data->v_rand = 29;
+  data->v_rand = 38;
+
+  int sdvigX = data->SavePositionX - round(data->CameraPositionX);
+  int sdvigZ = data->SavePositionZ - round(data->CameraPositionZ);
+  for (int myx = 0; myx < 16; myx++)
+    for (int myz = 0; myz < 16; myz++)
+      if ((myx + sdvigX >= 0) and (myx + sdvigX <= 16) and (myz + sdvigZ >= 0) and (myz + sdvigZ <= 16))
+        data->RenderBlocks[myx][myz] = data->RenderBlocks[myx + sdvigX][myz + sdvigX];
+      else
+        data->RenderBlocks[myx][myz] = 20;
+  //data->SavePositionX
+
   // x1 = (x1 % 50);
   // z1 = (z1 % 50);
   //uint8_t myheight = WaterLine + 10;
-  for (int myx = 0; myx < 16; myx++)
-    for (int myz = 0; myz < 16; myz++)
-      data->RenderBlocks[myx][myz] = 20;
 
   for (int myi = 0; myi <= 10; myi++) {
     float v = (float)9.21 - ((float)(Minecraft_random() % 473) / (float)100);
@@ -278,16 +268,17 @@ static uint8_t Minecraft_rendermap()
 
 
     for (int myx = 0; myx < 16; myx++)
-      for (int myz = 0; myz < 16; myz++) {
-        int  x1 = data->CameraPositionX + myx - 8;
-        int  z1 = data->CameraPositionZ + myz - 8;
-        x1 = (x1 % 50);
-        z1 = (z1 % 50);
+      for (int myz = 0; myz < 16; myz++)
+        if (data->RenderBlocks[myx][myz] == 20) {
+          int  x1 = data->CameraPositionX + myx - 8;
+          int  z1 = data->CameraPositionZ + myz - 8;
+          x1 = (x1 % 50);
+          z1 = (z1 % 50);
 
-        int v5 = round( (v * v) - (((v2 - x1) * (v2 - x1) + (v3 - z1) * (v3 - z1)) * v4) );
-        if (data->RenderBlocks[myx][myz] < v5)
-          data->RenderBlocks[myx][myz] = v5;
-      }
+          int v5 = round( (v * v) - (((v2 - x1) * (v2 - x1) + (v3 - z1) * (v3 - z1)) * v4) );
+          if (data->RenderBlocks[myx][myz] < v5)
+            data->RenderBlocks[myx][myz] = v5;
+        }
   }
 
   // for (int myz = 0; myz < 16; myz++)
@@ -299,8 +290,10 @@ static uint8_t Minecraft_rendermap()
         data->RenderBlocks[myx][myz] = 84;
 
 
+  data->RenRed = false;
   return data->RenderBlocks[8][8];
   // game_draw_pixel(32 + x1, 32 + z1, RED);
+
 }
 static uint8_t Minecraft_getmap(int x1, int z1)
 {
@@ -532,16 +525,12 @@ static void Minecraft_DrawTriangle(int myx1, int myy1, int myx2, int myy2, int m
   // game_draw_digits(invslope2, 50, 50, 6, BLUE );
 
   /*for (int y0 = max(min(min(y1, y2), y3), 0); y0 < min( max(max(y1, y2), y3), 64); y0++) {
-
     for (int x0 = max(min(min(x1, x2), x3), 0); x0 < min(max(max(x1, x2), x3), 64); x0++) {
     int a = (x1 - x0) * (y2 - y1) - (x2 - x1) * (y1 - y0);
     int b = (x2 - x0) * (y3 - y2) - (x3 - x2) * (y2 - y0);
     int c = (x3 - x0) * (y1 - y3) - (x1 - x3) * (y3 - y0);
-
     if ((a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0))
     {
-
-
     if (game_get_pixel(x0, y0) == BLACK)
       if (data->IdCube > 0) {
         game_draw_pixel(x0, y0, color);
@@ -555,7 +544,6 @@ static void Minecraft_DrawTriangle(int myx1, int myy1, int myx2, int myy2, int m
       }
     // delay(1);
     }
-
     }
     }*/
   /*int b1, k1;
@@ -563,10 +551,8 @@ static void Minecraft_DrawTriangle(int myx1, int myy1, int myx2, int myy2, int m
     int b3, k3;
     int y11, y12;
     float test1, test2;
-
     test1 = -y1 - y2;
     test2 = -x1 - x2;
-
     if (test2 != 0)
     {
     k1 = (test1 / test2) * 100;
@@ -577,10 +563,8 @@ static void Minecraft_DrawTriangle(int myx1, int myy1, int myx2, int myy2, int m
     k1 = 0;
     b1 = y1 - ((float)(k1 / 100.0) * x1);
     }
-
     test1 = -y2 - y3;
     test2 = -x2 - x3;
-
     if (test2 != 0)
     {
     k2 = (test1 / test2) * 100;
@@ -591,10 +575,8 @@ static void Minecraft_DrawTriangle(int myx1, int myy1, int myx2, int myy2, int m
     k2 = 0;
     b2 = y2 - ((float)(k2 / 100.0) * x2);
     }
-
     test1 = -y3 - y1;
     test2 = -x3 - x1;
-
     if (test2 != 0)
     {
     k3 = (test1 / test2) * 100;
@@ -605,8 +587,6 @@ static void Minecraft_DrawTriangle(int myx1, int myy1, int myx2, int myy2, int m
     k3 = 0;
     b3 = y3 - ((float)(k3 / 100.0) * x3);
     }
-
-
     for (int i1 = min(min(x1, x2), x3); i1 < max(max(x1, x2), x3); i1++) {
     y11 = -1;
     y12 = -1;
@@ -633,23 +613,18 @@ static void Minecraft_DrawTriangle(int myx1, int myy1, int myx2, int myy2, int m
 /* qx1 = (x1 * (Minecraft_cos(myA) + (  (1 - Minecraft_cos(myA)) * myX * myX)) + y1 * (   - (Minecraft_sin(myA) * myZ)  ) + z1 * (  (1 - Minecraft_cos(myA)) * myX * myZ   )) ;
     qy1 = (x1 * (   (Minecraft_sin(myA) * myZ)  ) + y1 * (  Minecraft_cos(myA)   ) + z1 * (   - (Minecraft_sin(myA) * myX)  )) ;
     qz1 = (x1 * (  (1 - Minecraft_cos(myA)) * myZ * myX   ) + y1 * (  (Minecraft_sin(myA) * myX)  ) + z1 * (   Minecraft_cos(myA) + (1 - Minecraft_cos(myA)) * myZ * myZ   ));
-
     qx2 = (x2 * (Minecraft_cos(myA) + (  (1 - Minecraft_cos(myA)) * myX * myX)) + y2 * (   - (Minecraft_sin(myA) * myZ)  ) + z2 * (  (1 - Minecraft_cos(myA)) * myX * myZ   )) ;
     qy2 = (x2 * (Minecraft_sin(myA) * myZ) +            y2 * (Minecraft_cos(myA))      +        z2 * (-Minecraft_sin(myA) * myX)      );
     qz2 = (x2 * (  (1 - Minecraft_cos(myA)) * myZ * myX   ) + y2 * (   (Minecraft_sin(myA) * myX)  ) + z2 * (   Minecraft_cos(myA) + (1 - Minecraft_cos(myA)) * myZ * myZ   ));
-
     qx3 = (x3 * (Minecraft_cos(myA) + (  (1 - Minecraft_cos(myA)) * myX * myX)) + y3 * (   - (Minecraft_sin(myA) * myZ)  ) + z3 * (  (1 - Minecraft_cos(myA)) * myX * myZ   )) ;
     qy3 = (x3 * (  (Minecraft_sin(myA) * myZ)  ) + y3 * (  Minecraft_cos(myA)  ) + z3 * (   - (Minecraft_sin(myA) * myX)  ) );
     qz3 = (x3 * (  (1 - Minecraft_cos(myA)) * myZ * myX   ) + y3 * (  (Minecraft_sin(myA) * myX)  ) + z3 * (   Minecraft_cos(myA) + (1 - Minecraft_cos(myA)) * myZ * myZ   ));
-
     wx1 = (qx1 * Minecraft_cos(data->CameraRotateX) + qz1 * Minecraft_sin(data->CameraRotateX)) ;
     wy1 = (qy1);
     wz1 = (- qx1 * Minecraft_sin(data->CameraRotateX) + qz1 * Minecraft_cos(data->CameraRotateX));
-
     wx2 = (qx2 * Minecraft_cos(data->CameraRotateX) + qz2 * Minecraft_sin(data->CameraRotateX));
     wy2 = (qy2)  ;
     wz2 = (- qx2 * Minecraft_sin(data->CameraRotateX) + qz2 * Minecraft_cos(data->CameraRotateX));
-
     wx3 = (qx3 * Minecraft_cos(data->CameraRotateX) + qz3 * Minecraft_sin(data->CameraRotateX));
     wy3 = qy3  ;
     wz3 = (- qx3 * Minecraft_sin(data->CameraRotateX) + qz3 * Minecraft_cos(data->CameraRotateX))  ;*/
@@ -861,19 +836,26 @@ static void Minecraft_Draw3DCube(int x1, int y1, int z1, uint8_t color)
 //**********************DRAW**********************DRAW**********************DRAW**********************DRAW**********************
 
 static uint8_t Minecraft_Draw3DCubesWithMap(int8_t myx, int8_t myz) {
+  if ((myx>-8)and(myx<8)){}else{
+    return 1;
+    }
   int mypx = round(-data->CameraPositionX) - myx;
   int mypy = Minecraft_getmap(myx + 8, myz + 8);
+  
+  //int myminpy = min(min(Minecraft_getmap(myx + 8, myz + 9),Minecraft_getmap(myx + 9, myz + 8)) , min(Minecraft_getmap(myx + 8, myz + 7),Minecraft_getmap(myx + 7, myz + 8)));
   int mypz = round(-data->CameraPositionZ) - myz;
+//if (true){
+  if (Minecraft_FrustumCulling( mypx, WaterLine, mypz ) || Minecraft_FrustumCulling( mypx, mypy, mypz ) || Minecraft_FrustumCulling( mypx, data->CameraPositionY - 1, mypz ) || Minecraft_FrustumCulling( mypx, data->CameraPositionY, mypz ) || Minecraft_FrustumCulling( mypx, data->CameraPositionY + 1, mypz )  ) {
+    
 
-  if ( Minecraft_FrustumCulling( mypx, mypy, mypz ) || Minecraft_FrustumCulling( mypx, data->CameraPositionY - 1, mypz ) || Minecraft_FrustumCulling( mypx, data->CameraPositionY, mypz ) || Minecraft_FrustumCulling( mypx, data->CameraPositionY + 1, mypz )  ) {
-    //if (true){
-
-    //  game_draw_pixel(mypx,mypz,mypy);
-    if (mypy > WaterLine)
+     //game_draw_pixel(mypx + 32, mypz + 36, RED);
+    if (mypy > WaterLine){
+  //  for (int y=myminpy;y<mypy;y++)
+   //   Minecraft_Draw3DCube(   mypx, y, mypz ,3);
       Minecraft_Draw3DCube(   mypx, mypy, mypz , 2);
-    else
+    }else
       Minecraft_Draw3DCube(   mypx, WaterLine , mypz , 4);
-
+    //Minecraft_Draw3DCube(   mypx,mypy , mypz , 4);
 
     return 2;
   } else
@@ -904,9 +886,9 @@ static void Minecraft_renderscrean()
   data->selectblockY = 0;
   data->selectblockZ = 0;
   data->XYZCube = 0;
-  data->SaveX=99;
+  data->SaveX = 99;
 
-  float myX, /*myY,*/ myZ, myA;
+  float myX, myZ, myA;
   myX = Minecraft_cos(data->CameraRotateX);
   //  myY = 0;
   myZ = Minecraft_sin(data->CameraRotateX);
@@ -936,12 +918,12 @@ static void Minecraft_renderscrean()
   //  data->RenderBlocks[i][1] = 0;
   //  data->RenderBlocks[i][2] = 0;
   //}
-  if ((data->UxUy.x != data->CameraPositionX) || (data->UxUy.z != data->CameraPositionZ)) {
-    data->UxUy.x = data->CameraPositionX;
-    data->UxUy.y = 0;
-    data->UxUy.z = data->CameraPositionZ;
+  if ((data->SavePositionX != round(data->CameraPositionX)) || (data->SavePositionZ != round(data->CameraPositionZ))) {
 
+    //    game_draw_pixel(2, 1, RED);
     Minecraft_rendermap();
+    data->SavePositionX = round(data->CameraPositionX);
+    data->SavePositionZ = round(data->CameraPositionZ);
   } else {
     Minecraft_clearmap();
   }
@@ -962,7 +944,6 @@ static void Minecraft_TimeIsButton()
     data->CameraPositionX +=  (Minecraft_sin(data->CameraRotateX) * 0.126);
     data->CameraPositionY -=  (Minecraft_sin(data->CameraRotateY) * 0.126);
     data->CameraPositionZ -=  (Minecraft_cos(data->CameraRotateX) * 0.126);
-    Minecraft_rendermap();
   }
   if (data->CameraRotateX <= 180)
     if  (game_is_button_pressed (BUTTON_LEFT)) {
@@ -1058,15 +1039,21 @@ static void Minecraft_render()
   game_draw_text((const uint8_t*)"FPS", 0, 54, GREEN);
   game_draw_rect(20, 56, 7, 5, BLACK);
   game_draw_digits(data->fps, 2, 20, 56, BLUE);
-  game_draw_text((const uint8_t*)"Ren  %", 30, 54, GREEN);
   game_draw_rect(48, 56, 11, 5, BLACK);
+  if (data->RenRed) {
+    game_draw_text((const uint8_t*)"Ren  %", 30, 54, RED);
+  } else {
+    game_draw_text((const uint8_t*)"Ren  %", 30, 54, GREEN);
+  }
+
   game_draw_digits(round(data->XYZCube * 6.25), 3, 48, 56, BLUE);
-   game_draw_digits(abs(data->selectblockX), 5,  0, 10,  BLUE);
-   game_draw_digits(data->selectblockY, 5, 21,  10, BLUE);
-   game_draw_digits(abs(data->selectblockZ), 5,  42, 10,  BLUE);
+  game_draw_digits(abs(data->selectblockX), 5,  0, 10,  BLUE);
+  //game_draw_digits(data->selectblockY, 5, 21,  10, BLUE);
+  game_draw_digits(random(100), 5, 21,  10, BLUE);
+  game_draw_digits(abs(data->selectblockZ), 5,  42, 10,  BLUE);
   /*game_draw_digits(data->CameraRotateX, 5,  0, 10,  BLUE);
-  game_draw_digits(data->CameraRotateY, 5, 21,  10, BLUE);
-  game_draw_digits(data->CameraPositionY, 5,  42, 10,  BLUE);*/
+    game_draw_digits(data->CameraRotateY, 5, 21,  10, BLUE);
+    game_draw_digits(data->CameraPositionY, 5,  42, 10,  BLUE);*/
 
   game_draw_pixel(32, 32, RED);
   //-------------------------------------GUI------------------
@@ -1077,8 +1064,8 @@ static void Minecraft_render()
 static void Minecraft_update(unsigned long delta)
 {
 
-  if (delta > 0)
-    data->fps = 1000 / (abs(delta));
+  //if (delta > 0)
+  data->fps = 1000 / (abs(delta));
   /*  for (int i = 0; i < 16; i++)
       for (int j = 0; j < 16; j++)
         data->RenderBlocks[i][j] = 95;
@@ -1089,9 +1076,7 @@ static void Minecraft_update(unsigned long delta)
   /*if (data->XYZCube < 256) {
     data->XYZCube++;
     //if ((data->XYZCube < 256)&& (data->XYZCube >0)) {
-
     int x =  ((data->XYZCube / (int)16) % 16);
-
     int z = ((data->XYZCube) % 16);
     game_draw_pixel(x,z,RED);
     if ((x >= 0) && (z >= 0) && (x < 16) && (z < 16))
@@ -1102,7 +1087,6 @@ static void Minecraft_update(unsigned long delta)
         int realX = round(-data->CameraPositionX) + x - 8;
         int realZ = round(-data->CameraPositionZ) + z - 8;
          if (Minecraft_FrustumCulling(realX, y, realZ)){
-
         game_draw_digits(data->RenderBlocks[x][z], 5, 32, 0, BLUE);
         Minecraft_Draw3DCube( realX , y,  realZ , 1);
          }
@@ -1121,7 +1105,6 @@ static void Minecraft_update(unsigned long delta)
        {
        bool iii = true ;
        while ((data->XYZCube < 1000) && (iii == true)){
-
            data->XYZCube++;
            int myx, myy, myz, ModXYZCube = data->XYZCube % 125;
            if ((0 <= data->XYZCube) && (data->XYZCube < 125))
@@ -1165,8 +1148,6 @@ static void Minecraft_update(unsigned long delta)
              myy = round( data->CameraPositionY) + (  (  -(ModXYZCube) % 5)  );
              myz = round(-data->CameraPositionZ) + (  (  -(ModXYZCube / (int)25) % 5)  );
            }
-
-
            if (Minecraft_FrustumCulling(myx, myy, myz)) {
             // Minecraft_rendermap(myx,  myz);
              // game_draw_digits(data->x, 2, 0, 40, WHITE);
@@ -1179,7 +1160,6 @@ static void Minecraft_update(unsigned long delta)
            }
          }
        }
-
   */
   //Minecraft_Draw3DCube( 2, 2, 2, 1 );
   // for (int myx = 0 ; myx < 64; myx++)
@@ -1233,91 +1213,91 @@ static void Minecraft_update(unsigned long delta)
     Minecraft_Draw3DCube(  round(-data->CameraPositionX) , round(data->CameraPositionY)  ,   round(-data->CameraPositionZ) - 10 , 3);
   */
   //if (data->XYZCube < 15) {
-  while (data->XYZCube<=15) {
+  while (data->XYZCube <= 15) {
     if (data->XYZCube == 0)
       Minecraft_Draw3DCubesWithMap(0, 0);
-int a = data->XYZCube % 15;
-   if  (a<=data->SaveX){ 
-    data->XYZCube ++;
+    int a = data->XYZCube % 15;
+    if  (a <= data->SaveX) {
+      data->XYZCube ++;
 
-data->SaveX=-(data->XYZCube % 15);
-     }
+      data->SaveX = -(data->XYZCube % 15);
+    }
     // for (int i=0;i< data->XYZCube/(int)2;i++){
     //    int myx = 0;
     //    int myz = 0;
 
-     a = data->XYZCube % 15;
+    a = data->XYZCube % 15;
     //for (int x = -a; a >= x; x++) {
-while(a>data->SaveX){
-  data->SaveX=data->SaveX+1;
-    bool retu = false;
-    int x=data->SaveX;
-    if (x < 1)
-      if (x > -9) {
-        if ((8 + x + a >= 0) and (8 + x + a < 16)) {
-          int myx = x + 8;
-          int myz = 8 + x + a;
-          if ((Minecraft_getviewmap(myx - 1, myz) == 2) || (Minecraft_getviewmap(myx, myz - 1) == 2) || (Minecraft_getviewmap(myx + 1, myz) == 2) || (Minecraft_getviewmap(myx, myz + 1) == 2)) if (Minecraft_getviewmap(myx, myz) == 0)
-              Minecraft_setviewmap(myx, myz, Minecraft_Draw3DCubesWithMap(myx - 8, myz - 8) );
-retu = true;
-          //game_draw_pixel(myx,myz,RED);
-        }
-        if (x > -a)
-          if ((8 - x - a >= 0) and (8 - x - a < 16))
-          {
+    while (a > data->SaveX) {
+      data->SaveX = data->SaveX + 1;
+      bool retu = false;
+      int x = data->SaveX;
+      if (x < 1)
+        if (x > -9) {
+          if ((8 + x + a >= 0) and (8 + x + a < 16)) {
             int myx = x + 8;
-            int myz = 8 - x - a;
+            int myz = 8 + x + a;
             if ((Minecraft_getviewmap(myx - 1, myz) == 2) || (Minecraft_getviewmap(myx, myz - 1) == 2) || (Minecraft_getviewmap(myx + 1, myz) == 2) || (Minecraft_getviewmap(myx, myz + 1) == 2)) if (Minecraft_getviewmap(myx, myz) == 0)
                 Minecraft_setviewmap(myx, myz, Minecraft_Draw3DCubesWithMap(myx - 8, myz - 8) );
-retu = true;
- 
+            retu = true;
+            //game_draw_pixel(myx,myz,RED);
+          }
+          if (x > -a)
+            if ((8 - x - a >= 0) and (8 - x - a < 16))
+            {
+              int myx = x + 8;
+              int myz = 8 - x - a;
+              if ((Minecraft_getviewmap(myx - 1, myz) == 2) || (Minecraft_getviewmap(myx, myz - 1) == 2) || (Minecraft_getviewmap(myx + 1, myz) == 2) || (Minecraft_getviewmap(myx, myz + 1) == 2)) if (Minecraft_getviewmap(myx, myz) == 0)
+                  Minecraft_setviewmap(myx, myz, Minecraft_Draw3DCubesWithMap(myx - 8, myz - 8) );
+              retu = true;
+
+              // game_draw_pixel(myx,myz,RED);
+            }
+
+        }
+
+      if (x > 0)
+        if (x < 8)
+        {
+          if ((8 + x - a >= 0) and (8 + x - a < 16))
+          {
+            int myx = x + 8;
+            int myz = 8 + x - a;
+            if ((Minecraft_getviewmap(myx - 1, myz) == 2) || (Minecraft_getviewmap(myx, myz - 1) == 2) || (Minecraft_getviewmap(myx + 1, myz) == 2) || (Minecraft_getviewmap(myx, myz + 1) == 2)) if (Minecraft_getviewmap(myx, myz) == 0)
+                Minecraft_setviewmap(myx, myz, Minecraft_Draw3DCubesWithMap(myx - 8, myz - 8) );
+            retu = true;
             // game_draw_pixel(myx,myz,RED);
           }
 
-      }
-
-    if (x > 0)
-      if (x < 8)
-      {
-        if ((8 + x - a >= 0) and (8 + x - a < 16))
-        {
-          int myx = x + 8;
-          int myz = 8 + x - a;
-          if ((Minecraft_getviewmap(myx - 1, myz) == 2) || (Minecraft_getviewmap(myx, myz - 1) == 2) || (Minecraft_getviewmap(myx + 1, myz) == 2) || (Minecraft_getviewmap(myx, myz + 1) == 2)) if (Minecraft_getviewmap(myx, myz) == 0)
-              Minecraft_setviewmap(myx, myz, Minecraft_Draw3DCubesWithMap(myx - 8, myz - 8) );
+          if (x < a)
+            if ((8 - x + a >= 0) and (8 - x + a < 16))
+            {
+              int myx = x + 8;
+              int myz = 8 - x + a;
+              if ((Minecraft_getviewmap(myx - 1, myz) == 2) || (Minecraft_getviewmap(myx, myz - 1) == 2) || (Minecraft_getviewmap(myx + 1, myz) == 2) || (Minecraft_getviewmap(myx, myz + 1) == 2)) if (Minecraft_getviewmap(myx, myz) == 0)
+                  Minecraft_setviewmap(myx, myz, Minecraft_Draw3DCubesWithMap(myx - 8, myz - 8) );
               retu = true;
-          // game_draw_pixel(myx,myz,RED);
+              //game_draw_pixel(myx,myz,RED);
+            }
+
         }
+      if (retu == true)
+        return;
 
-        if (x < a)
-          if ((8 - x + a >= 0) and (8 - x + a < 16))
-          {
-            int myx = x + 8;
-            int myz = 8 - x + a;
-            if ((Minecraft_getviewmap(myx - 1, myz) == 2) || (Minecraft_getviewmap(myx, myz - 1) == 2) || (Minecraft_getviewmap(myx + 1, myz) == 2) || (Minecraft_getviewmap(myx, myz + 1) == 2)) if (Minecraft_getviewmap(myx, myz) == 0)
-                Minecraft_setviewmap(myx, myz, Minecraft_Draw3DCubesWithMap(myx - 8, myz - 8) );
-                retu = true;
-            //game_draw_pixel(myx,myz,RED);
-          }
 
-      }
-      if (retu==true)
-      return;
-      
+    }
 
+
+
+
+
+    //if ((Minecraft_getviewmap(myx - 1, myz) == 2) || (Minecraft_getviewmap(myx, myz - 1) == 2) || (Minecraft_getviewmap(myx + 1, myz) == 2) || (Minecraft_getviewmap(myx, myz + 1) == 2)) if (Minecraft_getviewmap(myx, myz) == 0) {
+    // Minecraft_setviewmap(myx, myz, Minecraft_Draw3DCubesWithMap(myx - 8, myz - 8) );
+    //}
+    //return;
+    //}
+    //}
   }
-
-
-
-
-
-  //if ((Minecraft_getviewmap(myx - 1, myz) == 2) || (Minecraft_getviewmap(myx, myz - 1) == 2) || (Minecraft_getviewmap(myx + 1, myz) == 2) || (Minecraft_getviewmap(myx, myz + 1) == 2)) if (Minecraft_getviewmap(myx, myz) == 0) {
-  // Minecraft_setviewmap(myx, myz, Minecraft_Draw3DCubesWithMap(myx - 8, myz - 8) );
-  //}
-  //return;
-  //}
-  //}
-}
 }
 
 const game_instance Minecraft PROGMEM = {

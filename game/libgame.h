@@ -59,6 +59,7 @@ extern const game_instance DoodleJump PROGMEM;
 #ifdef FRAME_BUFFER
 extern const game_instance Maze3D PROGMEM;
 #endif
+extern const game_instance BrainF PROGMEM;
 
 /* Test applications */
 #ifndef EMULATED
