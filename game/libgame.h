@@ -55,7 +55,7 @@ extern const game_instance Tetrisnake PROGMEM;
 #endif
 extern const game_instance DoodleJump PROGMEM;
 extern const game_instance Minecraft PROGMEM;
-
+xtern const game_instance BrainF PROGMEM;
 /* Test applications */
 #ifndef EMULATED
 extern const game_instance Dump PROGMEM;
