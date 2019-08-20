@@ -5,10 +5,6 @@
 #include "binary.h"
 #include "controls.h"
 
-
-static void make_a_move();
-static void proverka();
-
 /* Встроенные цвета:
  *
  *  BLACK - Чёрный
@@ -197,319 +193,492 @@ const game_sprite kursor PROGMEM = {
  *
  * */
 
-struct TemplateData
+
+ bool is_Win( bool &flag );
+ bool is_Lose( bool &flag );
+ bool is_draw();
+ void reload();
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// queue class
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+enum WHATs_INSIDE
 {
-    /* Объявляйте ваши переменные здесь */
-    /* Чтобы потом обращаться к ним, пишите data->ПЕРЕМЕННАЯ */
-
-    int kn[5][2],a[3][3];
-    int x, y, z,q,w,d,s,n;
-};
-static TemplateData* data; /* Эта переменная - указатель на структуру, которая содержит ваши переменные */
-
-static void Template_prepare()
-{
-    game_set_ups(10);
-    for(int i = 0; i < 9; i++)
-      {
-//  data->q[i] = false;
-        data->a[i][i] = -1;
-      }
-    data->x = data->y = data->z = data->q = data->w = data->d = data->s = data->n = 0;
-    
-}
-
-static void Template_render()
-{
-    game_draw_vline(20, 0, 63, WHITE); // vertical line
-    game_draw_vline(21, 0, 63, WHITE); // vertical line
-    game_draw_vline(43, 0, 63, WHITE); // vertical line
-    game_draw_vline(42, 0, 63, WHITE); // vertical line
-    game_draw_rect(0, 20, 64, 2, WHITE);
-    game_draw_rect(0, 42, 64, 2, WHITE);
-
-//while(flag != false){
-  if(44>=data->x && data->x>=0 && 44>=data->y && data->y>=0){
-    game_draw_vline(data->x, data->y, data->y+19, YELLOW); // vertical line
-    game_draw_vline(data->x+19, data->y, data->y+19, YELLOW); // vertical line
-    game_draw_rect(data->x, data->y, 20, 1, YELLOW);
-    game_draw_rect(data->x, data->y+19, 20, 1, YELLOW);
-  }
-  for(int i = 0; i < 9; i++){
-    for(int j = 0; j < 9; j++){
-      if(data->a[i][j] == 1){
-        game_draw_sprite(&krestikup, i*22, j*22, RED);         //КРЕСТИК
-        game_draw_sprite(&krestikdow, i*22, (j*22)+10, RED);     // КРЕСТИК
-      }
-       if(data->a[i][j] == 2){
-        game_draw_sprite(&nolikup, i*22, j*22, BLUE);         //КРЕСТИК
-        game_draw_sprite(&nolikdow, i*22, (j*22)+10, BLUE);     // КРЕСТИК
-      }
-    }
-  }
-//}
-    /* Здесь код, который будет вывзваться для отрисовки кадра */
-    /* Он не должен менять состояние игры, для этого есть функция update */
-
-    /* Здесь (и только здесь) нужно вызывать функции game_draw_??? */
-
-/*  game_draw_sprite(&krestikup, 0, 0, RED);      КРЕСТИК
-    game_draw_sprite(&krestikdow, 0, 10, RED);      КРЕСТИК
-*/
-
-/*
-    game_draw_sprite(&nolikup, 22, 0, BLUE);         НОЛИК
-    game_draw_sprite(&nolikdow, 22, 10, BLUE);       НОЛИК
-*/
-
-
-
-}
-
-static void Template_update(unsigned long delta)
-{
-   if (game_is_button_pressed(BUTTON_LEFT))
-        {
-          if (data->x>0)
-            {
-              data->x-=22;
-            }            
-        }
-        else if (game_is_button_pressed(BUTTON_RIGHT))
-        {
-          if (data->x<44)
-            {
-              data->x+=22;
-            }            
-        }
-        else if (game_is_button_pressed(BUTTON_UP))
-        {
-            if (data->y>0)
-            {
-              data->y-=22;
-            }            
-        }
-        else if (game_is_button_pressed(BUTTON_DOWN))
-        {
-            if (data->y<44)
-            {
-              data->y+=22;
-            }             
-        }
-        else if (game_is_button_pressed(BUTTON_A))
-        {
-            
-            
-            
-            if(data->x == 0)
-              data->q = 0;
-            if(data->x == 22)
-              data->q = 1;
-            if(data->x == 44)
-              data->q = 2; 
-              
-            if(data->y == 0)
-              data->w = 0;
-            if(data->y == 22)
-              data->w = 1;
-            if(data->y == 44)
-             data-> w = 2;  
-
-           data->a[data->q][data->w] = 1;
-           data->d++;
-           data->s++;
-        }
-        if(data->d == 1)
-        {
-          make_a_move();
-        }
-       
-
-        
-        
- 
-    
-
-
-    
-}
-
-const game_instance TicTacToe PROGMEM = {
-    "TicTacToe",         /* Имя, отображаемое в меню */
-    Template_prepare,
-    Template_render,
-    Template_update,
-    sizeof(TemplateData),
-    (void**)(&data)
+    CROSS = -1,
+    NOTHING,
+    TOE
 };
 
+const int SIZE = 2;
 
-static void make_a_move()
+struct kek
 {
-  
-  proverka();
+    WHATs_INSIDE inside;
+    int index;
+};
 
+bool operator==(kek a, kek b)
+{
+    return ((a.inside == b.inside) && (a.index == b.index));
+}
+class queue
+{
+
+    kek A[SIZE];
   
-  if(data->s == 1)
-  {
-    if(data->a[1][1] == 1)
+    int first;
+    int last; 
+
+public:
+  
+    queue()
     {
-      data->a[2][2] = 2;
-      data->n = 1;
-      data->s++;
-      proverka();
+        last = first = 0;
+    }
+  
+    ~queue(){}
+
+    kek front() { return A[0];  }
+    kek back()  { return A[1];  }
+  
+    bool push(WHATs_INSIDE x, int index);
+
+  
+};
+
+
+
+bool queue::push(WHATs_INSIDE x, int index)
+{
+    if (last + 1  ==  first)
+    {
+        if (A[0] == A[1])
+        {
+            return true;
+        }
     }
     else
     {
-      data->a[1][1] = 2;
-      data->n = 2;
-      data->s++;
-      proverka();
+        A[(last) % SIZE].inside = x;
+        A[(last++) % SIZE].index = index;
+        return false;
     }
-    
-  }
-  else if(data->s > 1)
-  {
-    if(data->n == 1)
-    {
-      proverka();
-    }
-    if(data->n == 2)
-    {
-      proverka();
-    }  
-  }     
-  data->d--;
 }
 
-static void proverka()
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// variables
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+queue mas[8];
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// data
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct Tic_Tac_toeData
 {
-  if(data->a[0][0] == 1 && data->a[0][1] == 1)
-  data->a[0][2] = 2;
-else if(data->a[0][1] == 1 && data->a[0][2] == 1)
-  data->a[0][0] = 2;
-else if(data->a[0][0] == 1 && data->a[0][2] == 1)
-  data->a[0][1] = 2;
+    bool joystick[3][3];
 
-else if(data->a[1][0] == 1 && data->a[1][1] == 1)
-  data->a[1][2] = 2;
-else if(data->a[1][1] == 1 && data->a[1][2] == 1)
-  data->a[1][0] = 2;
-else if(data->a[1][0] == 1 && data->a[1][2] == 1)
-  data->a[1][1] = 2;
+    WHATs_INSIDE field[3][3];
 
-else if(data->a[2][0] == 1 && data->a[2][1] == 1)
-  data->a[2][2] = 2;
-else if(data->a[2][1] == 1 && data->a[2][2] == 1)
-  data->a[2][0] = 2;
-else if(data->a[2][0] == 1 && data->a[2][2] == 1)
-  data->a[2][1] = 2;
+    int x, y;
 
+    bool xod_igroka;
+    bool menu, DRAW, LOSE, WIN;
+    long long pause;
+    bool flafg;
+};
+static Tic_Tac_toeData* data; /* Эта переменная - указатель на структуру, которая содержит ваши переменные */
 
-else if(data->a[0][0] == 1 && data->a[1][0] == 1)
-  data->a[2][0] = 2;
-else if(data->a[1][0] == 1 && data->a[2][0] == 1)
-  data->a[0][0] = 2;
-else if(data->a[0][0] == 1 && data->a[2][0] == 1)
-  data->a[1][0] = 2;
-
-else if(data->a[0][1] == 1 && data->a[1][1] == 1)
-  data->a[2][1] = 2;
-else if(data->a[1][1] == 1 && data->a[2][1] == 1)
-  data->a[0][1] = 2;
-else if(data->a[0][1] == 1 && data->a[2][1] == 1)
-  data->a[1][1] = 2;
-
-else if(data->a[0][2] == 1 && data->a[1][2] == 1)
-  data->a[2][2] = 2;
-else if(data->a[1][2] == 1 && data->a[2][2] == 1)
-  data->a[0][2] = 2;
-else if(data->a[0][2] == 1 && data->a[2][2] == 1)
-  data->a[1][2] = 2;
-
-  
-
-
-else if(data->a[0][0] == 1 && data->a[1][1] == 1)
-  data->a[2][2] = 2;
-else if(data->a[0][0] == 1 && data->a[2][2] == 1)
-  data->a[1][1] = 2;
-else if(data->a[1][1] == 1 && data->a[2][2] == 1)
-  data->a[0][0] = 2; 
-
-else if(data->a[2][0] == 1 && data->a[1][1] == 1)
-  data->a[0][2] = 2;
-else if(data->a[2][0] == 1 && data->a[0][2] == 1)
-  data->a[1][1] = 2;
-else if(data->a[1][1] == 1 && data->a[0][2] == 1)
-  data->a[2][0] = 2; 
-
-
-
-
-
-
-if(data->a[0][0] == 2 && data->a[0][1] == 2)
-  data->a[0][2] = 1;
-else if(data->a[0][1] == 2 && data->a[0][2] == 2)
-  data->a[0][0] = 1;
-else if(data->a[0][0] == 2 && data->a[0][2] == 2)
-  data->a[0][1] = 1;
-
-else if(data->a[1][0] == 2 && data->a[1][1] == 2)
-  data->a[1][2] = 1;
-else if(data->a[1][1] == 2 && data->a[1][2] == 2)
-  data->a[1][0] = 1;
-else if(data->a[1][0] == 2 && data->a[1][2] == 2)
-  data->a[1][1] = 1;
-
-else if(data->a[2][0] == 2 && data->a[2][1] == 2)
-  data->a[2][2] = 1;
-else if(data->a[2][1] == 2 && data->a[2][2] == 2)
-  data->a[2][0] = 1;
-else if(data->a[2][0] == 2 && data->a[2][2] == 2)
-  data->a[2][1] = 1;
-  
-
-else if(data->a[0][0] == 2 && data->a[1][0] == 2)
-  data->a[2][0] = 1;
-else if(data->a[1][0] == 2 && data->a[2][0] == 2)
-  data->a[0][0] = 1;
-else if(data->a[0][0] == 2 && data->a[2][0] == 2)
-  data->a[1][0] = 1;
-
-else if(data->a[0][1] == 2 && data->a[1][1] == 2)
-  data->a[2][1] = 1;
-else if(data->a[1][1] == 2 && data->a[2][1] == 2)
-  data->a[0][1] = 1;
-else if(data->a[0][1] == 2 && data->a[2][1] == 2)
-  data->a[1][1] = 1;
-
-else if(data->a[0][2] == 2 && data->a[1][2] == 2)
-  data->a[2][2] = 1;
-else if(data->a[1][2] == 2 && data->a[2][2] == 2)
-  data->a[0][2] = 1;
-else if(data->a[0][2] == 2 && data->a[2][2] == 2)
-  data->a[1][2] = 1;
-
-  
-
-
-else if(data->a[0][0] == 2 && data->a[1][1] == 2)
-  data->a[2][2] = 1;
-else if(data->a[0][0] == 2 && data->a[2][2] == 2)
-  data->a[1][1] = 1;
-else if(data->a[1][1] == 2 && data->a[2][2] == 2)
-  data->a[0][0] = 1; 
-
-else if(data->a[2][0] == 2 && data->a[1][1] == 2)
-  data->a[0][2] = 1;
-else if(data->a[2][0] == 2 && data->a[0][2] == 2)
-  data->a[1][1] = 1;
-else if(data->a[1][1] == 2 && data->a[0][2] == 2)
-  data->a[2][0] = 1; 
-
-
+static void Tic_Tac_toe_prepare()
+{
+    game_set_ups(10);
+    data->xod_igroka = true;
+    data->flafg = false;
+    data->menu = data->DRAW = data->LOSE = data->WIN = false;
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            data->field[i][j] = NOTHING;
+            data->joystick[i][j] = false;    
+        }
+    }
+    data->x = data->y = 0;
+    data->pause = 0;
 }
 
+static void Tic_Tac_toe_render()
+{
+    if(!data->menu)
+    {    
+        game_draw_vline(20, 0, 63, WHITE); // vertical line
+        game_draw_vline(21, 0, 63, WHITE); // vertical line
+        game_draw_vline(43, 0, 63, WHITE); // vertical line
+        game_draw_vline(42, 0, 63, WHITE); // vertical line
+        game_draw_rect(0, 20, 64, 2, WHITE);
+        game_draw_rect(0, 42, 64, 2, WHITE);
+    
+        /* Здесь код, который будет вывзваться для отрисовки кадра */
+        /* Он не должен менять состояние игры, для этого есть функция update */
+    
+        /* Здесь (и только здесь) нужно вызывать функции game_draw_??? */
+    
+    /*  game_draw_sprite(&krestikup, 0, 0, RED);  //      КРЕСТИК
+        game_draw_sprite(&krestikdow, 0, 10, RED);//      КРЕСТИК
+    */
+    
+    /*
+        game_draw_sprite(&nolikup, 22, 0, BLUE);         НОЛИК
+        game_draw_sprite(&nolikdow, 22, 10, BLUE);       НОЛИК
+    */
+    
+        if(44>=data->x && data->x>=0 && 44>=data->y && data->y>=0)
+        {
+            game_draw_vline(data->x, data->y, data->y+19, YELLOW); // vertical line
+            game_draw_vline(data->x+19, data->y, data->y+19, YELLOW); // vertical line
+            game_draw_rect(data->x, data->y, 20, 1, YELLOW);
+            game_draw_rect(data->x, data->y+19, 20, 1, YELLOW);
+        }
+        for(int i = 0; i < 3; i++)
+        {
+            for(int j = 0; j < 3; j++)
+            {
+                if(data->field[i][j] == CROSS)
+                {
+                    game_draw_sprite(&krestikup, i*22, j*22, RED);           //КРЕСТИК
+                    game_draw_sprite(&krestikdow, i*22, (j*22)+10, RED);     // КРЕСТИК
+                }
+                if(data->field[i][j] == TOE)
+                {
+                    game_draw_sprite(&nolikup, i*22, j*22, BLUE);           // nolik
+                    game_draw_sprite(&nolikdow, i*22, (j*22)+10, BLUE);     // NOLIK
+                }
+            }
+        }
+    }
+    else
+    {
+        if(data->DRAW)  game_draw_text((const uint8_t*)"DRAW", 22, 26, BLUE);
+        else if(data->WIN)   game_draw_text((const uint8_t*)"You Win!", 10, 26, GREEN);
+        else if(data->LOSE)  game_draw_text((const uint8_t*)"You Lose!", 6, 26, RED);
+
+        game_draw_text((const uint8_t*)" To start ", 1, 35, WHITE);
+        game_draw_text((const uint8_t*)" new game ", 1, 43, WHITE);
+        game_draw_text((const uint8_t*)"  press B ", 1, 51, WHITE);
+    }
+}
+
+static void Tic_Tac_toe_update(unsigned long delta)
+{
+    // работа с кнопками, переменные
+    bool flag = false;
+    int q;  int w = q = 0;
+    ////////////////////////////////////////////////////////////////////////////////////
+    // joystick
+    ////////////////////////////////////////////////////////////////////////////////////
+if(!data->menu)
+{
+  if (data->pause > 0)
+
+    {
+        data->pause -= delta;
+        if(data->pause <= 0)
+        {
+            data->menu = true;
+            data->LOSE = is_Lose(flag);
+            return;
+        }
+    }
+    else
+    {
+        if(data->xod_igroka)
+        {
+            if((!(game_is_button_pressed(BUTTON_A)))/* || data->flafg*/)
+            {
+                if (game_is_button_pressed(BUTTON_LEFT))
+                {
+                    if (data->x>0)
+                    {
+                        data->x-=22;
+                    }            
+                }
+                else if (game_is_button_pressed(BUTTON_RIGHT))
+                {
+                    if (data->x<44)
+                    {
+                        data->x+=22;
+                    }            
+                }
+                else if (game_is_button_pressed(BUTTON_UP))
+                {
+                    if (data->y>0)
+                    {
+                        data->y-=22;
+                    }            
+                }
+                else if (game_is_button_pressed(BUTTON_DOWN))
+                {
+                    if (data->y<44)
+                    {
+                        data->y+=22;
+                    }             
+                }
+            } 
+        
+            else
+            {
+                q = (( data->x == 0 )  ?  0 : ( (data->x  ==  22)  ?  1 : 2 ));
+        
+                w = (( data->y == 0 )  ?  0 : ( (data->y  ==  22)  ?  1 : 2 ));
+                
+                if(data->field[q][w] == NOTHING)
+                {
+                    data->field[q][w] = CROSS;
+                }
+                else  data->flafg = true;
+                if(!data->flafg)  data->xod_igroka = false;
+                data->flafg = false;
+             }
+        }
+        else
+        {
+            data->WIN = is_Win(flag);
+            if(!flag)
+            {
+                for(int _ = 0; _ < 3; ++_)
+                {
+                    if(data->field[_][0] == data->field[_][1] && data->field[_][2] == NOTHING || data->field[_][0] == data->field[_][2] && data->field[_][1] == NOTHING || data->field[_][1] == data->field[_][2] && data->field[_][0] == NOTHING)
+                    {
+                        if(data->field[_][0] == TOE || data->field[_][1] == TOE)
+                        {
+                            (data->field[_][0] == NOTHING) ? (data->field[_][0] = TOE)  :  (data->field[_][1] == NOTHING) ? (data->field[_][1] = TOE)  :  (data->field[_][2] = TOE);
+                            goto s;
+                        }
+                    }
+                }
+                for(int _ = 0; _ < 3; ++_)
+                {
+                    if(data->field[0][_] == data->field[1][_] && data->field[2][_] == NOTHING || data->field[0][_] == data->field[2][_] && data->field[1][_] == NOTHING || data->field[1][_] == data->field[2][_] && data->field[0][_] == NOTHING)
+                    {
+                        if(data->field[0][_] == TOE || data->field[1][_] == TOE)
+                        {
+                            (data->field[0][_] == NOTHING) ? (data->field[0][_] = TOE)  :  (data->field[1][_] == NOTHING) ? (data->field[1][_] = TOE)  :  (data->field[2][_] = TOE);
+                            goto s;
+                        }
+                    }
+                }
+
+                //////////////////////////////////////////////////////////////////////////////////////////
+                // write something about diagonals here:
+                //////////////////////////////////////////////////////////////////////////////////////////
+
+                if (
+                         data->field[0][0] == data->field[1][1] && data->field[2][2] == NOTHING && data->field[0][0] == TOE
+                      || data->field[0][0] == data->field[2][2] && data->field[1][1] == NOTHING && data->field[0][0] == TOE
+                      || data->field[2][2] == data->field[1][1] && data->field[0][0] == NOTHING && data->field[2][2] == TOE
+                   )
+                {
+                    (data->field[0][0] == NOTHING) ? (data->field[0][0] = TOE) : ((data->field[1][1] == NOTHING) ? (data->field[1][1] = TOE) : (data->field[2][2] = TOE));
+                    goto s;
+                }
+                if (
+                         data->field[0][2] == data->field[1][1] && data->field[2][0] == NOTHING && data->field[0][2] == TOE
+                      || data->field[0][2] == data->field[2][0] && data->field[1][1] == NOTHING && data->field[0][2] == TOE
+                      || data->field[2][0] == data->field[1][1] && data->field[0][2] == NOTHING && data->field[2][0] == TOE
+                   )
+                {
+                    (data->field[0][2] == NOTHING) ? (data->field[0][2] = TOE) : ((data->field[1][1] == NOTHING) ? (data->field[1][1] = TOE) : (data->field[2][0] = TOE));
+                    goto s;
+                }
+                //////////////////////////////////////////////////////////////////////////////////////////
+                // end of something about diagonals;
+                //////////////////////////////////////////////////////////////////////////////////////////
+                for(int _ = 0; _ < 3; ++_)
+                {
+                    if(data->field[_][0] == data->field[_][1] && data->field[_][2] == NOTHING || data->field[_][0] == data->field[_][2] && data->field[_][1] == NOTHING || data->field[_][1] == data->field[_][2] && data->field[_][0] == NOTHING)
+                    {
+                        if(data->field[_][0] == CROSS || data->field[_][1] == CROSS)
+                        {
+                            (data->field[_][0] == NOTHING) ? (data->field[_][0] = TOE)  :  (data->field[_][1] == NOTHING) ? (data->field[_][1] = TOE)  :  (data->field[_][2] = TOE);
+                            goto s;
+                        }
+                    }
+                    
+                    if(data->field[0][_] == data->field[1][_] && data->field[2][_] == NOTHING || data->field[0][_] == data->field[2][_] && data->field[1][_] == NOTHING || data->field[1][_] == data->field[2][_] && data->field[0][_] == NOTHING)
+                    {
+                        if(data->field[0][_] == CROSS || data->field[1][_] == CROSS)
+                        {
+                            (data->field[0][_] == NOTHING) ? (data->field[0][_] = TOE)  :  (data->field[1][_] == NOTHING) ? (data->field[1][_] = TOE)  :  (data->field[2][_] = TOE);
+                            goto s;
+                        }
+                    }
+                }
+                //////////////////////////////////////////////////////////////////////////////////////////
+                // and here may be, but if you will not want do it, you can forget it.
+                //////////////////////////////////////////////////////////////////////////////////////////
+                
+                if     (data->field[1][1] == NOTHING)
+                    data->field[1][1] = TOE;
+                else if(data->field[0][0] == NOTHING)
+                    data->field[0][0] = TOE;
+                else if(data->field[0][2] == NOTHING)
+                    data->field[0][2] = TOE;
+                else if(data->field[2][0] == NOTHING)
+                    data->field[2][0] = TOE;
+                else if(data->field[2][2] == NOTHING)
+                    data->field[2][2] = TOE;
+              
+                  
+              else if(data->field[0][1] == NOTHING)
+                  data->field[0][1] = TOE;
+              else if(data->field[1][2] == NOTHING)
+                  data->field[1][2] = TOE;
+              else if(data->field[2][1] == NOTHING)
+                  data->field[2][1] = TOE;
+              else if(data->field[1][0] == NOTHING)
+                  data->field[1][0] = TOE;
+              s:
+    
+              if(is_Lose(flag))
+              {
+                  data->pause = 600;
+              }
+              else
+                  data->xod_igroka = true;        
+              data->DRAW = is_draw();
+            }
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+    // end of joystick
+    ////////////////////////////////////////////////////////////////////////////////
+}
+else
+{
+    if(game_is_button_pressed(BUTTON_B))
+        reload();
+}
+}
+
+bool is_Win( bool &flag )
+{
+    
+    for(int i = 0; i < 3; ++i)
+    {
+        if(data->field[i][0] == data->field[i][1] && data->field[i][0] == data->field[i][2] && data->field[i][0] == CROSS)
+        {
+            flag = true;
+            goto here;
+        }
+        if(data->field[0][i] == data->field[1][i] && data->field[0][i] == data->field[2][i] && data->field[0][i] == CROSS)
+        {
+            flag = true;
+            goto here;
+        }
+        if(data->field[0][0] == data->field[1][1] && data->field[0][0] == data->field[2][2] && data->field[0][0] == CROSS)
+        {
+            flag = true;
+            goto here;
+        }
+        if(data->field[2][0] == data->field[1][1] && data->field[2][0] == data->field[0][2] && data->field[2][0] == CROSS)
+        {
+            flag = true;
+            goto here;
+        }
+
+    }
+    here:
+    if(flag)
+    {
+        data->menu = true;
+        return true;
+    }
+    return false;
+}
+
+bool is_Lose( bool &flag )
+{
+    for(int i = 0; i < 3; ++i)
+    {
+        if(data->field[i][0] == data->field[i][1] && data->field[i][0] == data->field[i][2] && data->field[i][0] == TOE)
+        {
+            flag = true;
+            goto herea;
+        }
+        if(data->field[0][i] == data->field[1][i] && data->field[0][i] == data->field[2][i] && data->field[0][i] == TOE)
+        {
+            flag = true;
+            goto herea;
+        }
+        if(data->field[0][0] == data->field[1][1] && data->field[0][0] == data->field[2][2] && data->field[0][0] == TOE)
+        {
+            flag = true;
+            goto herea;
+        }
+        if(data->field[2][0] == data->field[1][1] && data->field[2][0] == data->field[0][2] && data->field[2][0] == TOE)
+        {
+            flag = true;
+            goto herea;
+        }
+    }
+    herea:
+    if(flag)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool is_draw()
+{
+    for(int i = 0; i < 3; ++i)
+        for(int j = 0; j < 3; ++j)
+            if(data->field[i][j] == NOTHING)
+                return false;
+    
+    if(!data->WIN && !data->LOSE)
+    {
+        data->menu = true;
+        return true;
+    }
+    return false;
+}
+
+void reload()
+{
+    data->xod_igroka = true;
+    data->flafg = false;
+    data->menu = data->DRAW = data->LOSE = data->WIN = false;
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            data->field[i][j] = NOTHING;
+            data->joystick[i][j] = false;    
+        }
+    }
+    data->x = data->y = 0;
+    data->pause = 0;
+}
+
+
+
+const game_instance TicTacToe PROGMEM = {
+    "Tic-Tac-toe",         /* Имя, отображаемое в меню */
+    Tic_Tac_toe_prepare,
+    Tic_Tac_toe_render,
+    Tic_Tac_toe_update,
+    sizeof(Tic_Tac_toeData),
+    (void**)(&data)
+};
 /* Не забудьте зарегистрировать игру в application.cpp */
