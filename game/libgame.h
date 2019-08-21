@@ -60,6 +60,7 @@ extern const game_instance VVVV PROGMEM;
 extern const game_instance BrainF PROGMEM;
 extern const game_instance TicTacToe PROGMEM;
 extern const game_instance Pacman PROGMEM;
+extern const game_instance Asteroids PROGMEM;
 
 /* Test applications */
 #ifndef EMULATED

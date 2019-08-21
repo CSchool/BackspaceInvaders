@@ -17,6 +17,7 @@ static const MenuItem main_menu[] PROGMEM = {
     { "VVVV", &VVVV},
     { "Maze 3D", &Maze3D},
 #endif
+    { "Asteroids", &Asteroids },
 
     { "NY2019", NULL},
 #ifdef FRAME_BUFFER
