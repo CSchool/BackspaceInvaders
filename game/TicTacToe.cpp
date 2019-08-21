@@ -5,6 +5,12 @@
 #include "binary.h"
 #include "controls.h"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// author: 
+// Filippov Oleg 
+// LKSH 2019.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /* Встроенные цвета:
  *
  *  BLACK - Чёрный
@@ -192,17 +198,19 @@ const game_sprite kursor PROGMEM = {
  * game_is_any_button_pressed(mask) - Нажата ли хотя бы одна кнопка? Например: game_is_any_button_pressed(BITMASK(BUTTON_SW) | BITMASK(BUTTON_DOWN))
  *
  * */
-
-
- bool is_Win( bool &flag );
- bool is_Lose( bool &flag );
- bool is_draw();
- void reload();
+ 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// queue class
+// Prototypes of functions. I'll use them in the program.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool is_Win( bool &flag );
+bool is_Lose( bool &flag );
+bool is_draw();
+void reload();
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enumeration. (Type with three values). I'll use it in the field of game.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum WHATs_INSIDE
 {
@@ -210,6 +218,10 @@ enum WHATs_INSIDE
     NOTHING,
     TOE
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Queue class. It will not used in the program but it's so interesting and useful maybe.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const int SIZE = 2;
 
@@ -269,7 +281,7 @@ bool queue::push(WHATs_INSIDE x, int index)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// variables
+// End of Queue class.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // data
@@ -289,6 +301,10 @@ struct Tic_Tac_toeData
 };
 static Tic_Tac_toeData* data; /* Эта переменная - указатель на структуру, которая содержит ваши переменные */
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Initialization of data variables.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 static void Tic_Tac_toe_prepare()
 {
     game_set_ups(10);
@@ -307,17 +323,30 @@ static void Tic_Tac_toe_prepare()
     data->pause = 0;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// End of initialization.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 static void Tic_Tac_toe_render()
 {
     if(!data->menu)
-    {    
+    {
+          
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Field drawing.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         game_draw_vline(20, 0, 63, WHITE); // vertical line
         game_draw_vline(21, 0, 63, WHITE); // vertical line
         game_draw_vline(43, 0, 63, WHITE); // vertical line
         game_draw_vline(42, 0, 63, WHITE); // vertical line
         game_draw_rect(0, 20, 64, 2, WHITE);
         game_draw_rect(0, 42, 64, 2, WHITE);
-    
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// End of drawing.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         /* Здесь код, который будет вывзваться для отрисовки кадра */
         /* Он не должен менять состояние игры, для этого есть функция update */
     
@@ -331,7 +360,11 @@ static void Tic_Tac_toe_render()
         game_draw_sprite(&nolikup, 22, 0, BLUE);         НОЛИК
         game_draw_sprite(&nolikdow, 22, 10, BLUE);       НОЛИК
     */
-    
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Drawing joystick.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         if(44>=data->x && data->x>=0 && 44>=data->y && data->y>=0)
         {
             game_draw_vline(data->x, data->y, data->y+19, YELLOW); // vertical line
@@ -339,6 +372,11 @@ static void Tic_Tac_toe_render()
             game_draw_rect(data->x, data->y, 20, 1, YELLOW);
             game_draw_rect(data->x, data->y+19, 20, 1, YELLOW);
         }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// End of drawing joystick. And start of drawing Crosses and Toes.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
         for(int i = 0; i < 3; i++)
         {
             for(int j = 0; j < 3; j++)
@@ -358,6 +396,11 @@ static void Tic_Tac_toe_render()
     }
     else
     {
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Drawing menu and words for example Draw, Lose or Win.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      
         if(data->DRAW)  game_draw_text((const uint8_t*)"DRAW", 22, 26, BLUE);
         else if(data->WIN)   game_draw_text((const uint8_t*)"You Win!", 10, 26, GREEN);
         else if(data->LOSE)  game_draw_text((const uint8_t*)"You Lose!", 6, 26, RED);
@@ -368,197 +411,251 @@ static void Tic_Tac_toe_render()
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// code of game.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 static void Tic_Tac_toe_update(unsigned long delta)
 {
     // работа с кнопками, переменные
     bool flag = false;
     int q;  int w = q = 0;
-    ////////////////////////////////////////////////////////////////////////////////////
-    // joystick
-    ////////////////////////////////////////////////////////////////////////////////////
-if(!data->menu)
-{
-  if (data->pause > 0)
-
+    
+    if(!data->menu)
     {
-        data->pause -= delta;
-        if(data->pause <= 0)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// pause if you lose.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      
+        if (data->pause > 0)
         {
-            data->menu = true;
-            data->LOSE = is_Lose(flag);
-            return;
+            data->pause -= delta;
+            if(data->pause <= 0)
+            {
+                data->menu = true;
+                data->LOSE = is_Lose(flag);
+                return;
+            }
+        }
+        else
+        {
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// if player must to do smth.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          
+            if(data->xod_igroka)
+            {
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// joystick moving.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+              
+                if((!(game_is_button_pressed(BUTTON_A))))
+                {
+                    if (game_is_button_pressed(BUTTON_LEFT))
+                    {
+                        if (data->x>0)
+                        {
+                            data->x-=22;
+                        }            
+                    }
+                    else if (game_is_button_pressed(BUTTON_RIGHT))
+                    {
+                        if (data->x<44)
+                        {
+                            data->x+=22;
+                        }            
+                    }
+                    else if (game_is_button_pressed(BUTTON_UP))
+                    {
+                        if (data->y>0)
+                        {
+                            data->y-=22;
+                        }            
+                    }
+                    else if (game_is_button_pressed(BUTTON_DOWN))
+                    {
+                        if (data->y<44)
+                        {
+                            data->y+=22;
+                        }             
+                    }
+                } 
+            
+                else
+                {
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Drawing Crosses on the field.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                  
+                    q = (( data->x == 0 )  ?  0 : ( (data->x  ==  22)  ?  1 : 2 ));
+            
+                    w = (( data->y == 0 )  ?  0 : ( (data->y  ==  22)  ?  1 : 2 ));
+                    
+                    if(data->field[q][w] == NOTHING)
+                    {
+                        data->field[q][w] = CROSS;
+                    }
+                    else  data->flafg = true;
+                    if(!data->flafg)  data->xod_igroka = false;
+                    data->flafg = false;
+                 }
+            }
+            else
+            {
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// if bot must to do smth. and if player is win.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+              
+                data->WIN = is_Win(flag);
+                
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// if player isn't win.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                
+                if(!flag)
+                {
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Can bot Win?
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                  
+                    for(int _ = 0; _ < 3; ++_)
+                    {
+                        if(data->field[_][0] == data->field[_][1] && data->field[_][2] == NOTHING || data->field[_][0] == data->field[_][2] && data->field[_][1] == NOTHING || data->field[_][1] == data->field[_][2] && data->field[_][0] == NOTHING)
+                        {
+                            if(data->field[_][0] == TOE || data->field[_][1] == TOE)
+                            {
+                                (data->field[_][0] == NOTHING) ? (data->field[_][0] = TOE)  :  (data->field[_][1] == NOTHING) ? (data->field[_][1] = TOE)  :  (data->field[_][2] = TOE);
+                                goto s;
+                            }
+                        }
+                    }
+                    for(int _ = 0; _ < 3; ++_)
+                    {
+                        if(data->field[0][_] == data->field[1][_] && data->field[2][_] == NOTHING || data->field[0][_] == data->field[2][_] && data->field[1][_] == NOTHING || data->field[1][_] == data->field[2][_] && data->field[0][_] == NOTHING)
+                        {
+                            if(data->field[0][_] == TOE || data->field[1][_] == TOE)
+                            {
+                                (data->field[0][_] == NOTHING) ? (data->field[0][_] = TOE)  :  (data->field[1][_] == NOTHING) ? (data->field[1][_] = TOE)  :  (data->field[2][_] = TOE);
+                                goto s;
+                            }
+                        }
+                    }
+    
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Diagonals:
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+                    if (
+                             data->field[0][0] == data->field[1][1] && data->field[2][2] == NOTHING && data->field[0][0] == TOE
+                          || data->field[0][0] == data->field[2][2] && data->field[1][1] == NOTHING && data->field[0][0] == TOE
+                          || data->field[2][2] == data->field[1][1] && data->field[0][0] == NOTHING && data->field[2][2] == TOE
+                       )
+                    {
+                        (data->field[0][0] == NOTHING) ? (data->field[0][0] = TOE) : ((data->field[1][1] == NOTHING) ? (data->field[1][1] = TOE) : (data->field[2][2] = TOE));
+                        goto s;
+                    }
+                    if (
+                             data->field[0][2] == data->field[1][1] && data->field[2][0] == NOTHING && data->field[0][2] == TOE
+                          || data->field[0][2] == data->field[2][0] && data->field[1][1] == NOTHING && data->field[0][2] == TOE
+                          || data->field[2][0] == data->field[1][1] && data->field[0][2] == NOTHING && data->field[2][0] == TOE
+                       )
+                    {
+                        (data->field[0][2] == NOTHING) ? (data->field[0][2] = TOE) : ((data->field[1][1] == NOTHING) ? (data->field[1][1] = TOE) : (data->field[2][0] = TOE));
+                        goto s;
+                    }
+                    
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Can bot Lose?
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                    for(int _ = 0; _ < 3; ++_)
+                    {
+                        if(data->field[_][0] == data->field[_][1] && data->field[_][2] == NOTHING || data->field[_][0] == data->field[_][2] && data->field[_][1] == NOTHING || data->field[_][1] == data->field[_][2] && data->field[_][0] == NOTHING)
+                        {
+                            if(data->field[_][0] == CROSS || data->field[_][1] == CROSS)
+                            {
+                                (data->field[_][0] == NOTHING) ? (data->field[_][0] = TOE)  :  (data->field[_][1] == NOTHING) ? (data->field[_][1] = TOE)  :  (data->field[_][2] = TOE);
+                                goto s;
+                            }
+                        }
+                        
+                        if(data->field[0][_] == data->field[1][_] && data->field[2][_] == NOTHING || data->field[0][_] == data->field[2][_] && data->field[1][_] == NOTHING || data->field[1][_] == data->field[2][_] && data->field[0][_] == NOTHING)
+                        {
+                            if(data->field[0][_] == CROSS || data->field[1][_] == CROSS)
+                            {
+                                (data->field[0][_] == NOTHING) ? (data->field[0][_] = TOE)  :  (data->field[1][_] == NOTHING) ? (data->field[1][_] = TOE)  :  (data->field[2][_] = TOE);
+                                goto s;
+                            }
+                        }
+                    }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// simple move.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    
+                    if     (data->field[1][1] == NOTHING)
+                        data->field[1][1] = TOE;
+                    else if(data->field[0][0] == NOTHING)
+                        data->field[0][0] = TOE;
+                    else if(data->field[0][2] == NOTHING)
+                        data->field[0][2] = TOE;
+                    else if(data->field[2][0] == NOTHING)
+                        data->field[2][0] = TOE;
+                    else if(data->field[2][2] == NOTHING)
+                        data->field[2][2] = TOE;
+                  
+                      
+                  else if(data->field[0][1] == NOTHING)
+                      data->field[0][1] = TOE;
+                  else if(data->field[1][2] == NOTHING)
+                      data->field[1][2] = TOE;
+                  else if(data->field[2][1] == NOTHING)
+                      data->field[2][1] = TOE;
+                  else if(data->field[1][0] == NOTHING)
+                      data->field[1][0] = TOE;
+                  s:
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Does bot Win?
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+                  if(is_Lose(flag))
+                  {
+                      data->pause = 600;
+                  }
+                  else
+                      data->xod_igroka = true;        
+                  data->DRAW = is_draw();
+                }
+            }
         }
     }
     else
     {
-        if(data->xod_igroka)
-        {
-            if((!(game_is_button_pressed(BUTTON_A)))/* || data->flafg*/)
-            {
-                if (game_is_button_pressed(BUTTON_LEFT))
-                {
-                    if (data->x>0)
-                    {
-                        data->x-=22;
-                    }            
-                }
-                else if (game_is_button_pressed(BUTTON_RIGHT))
-                {
-                    if (data->x<44)
-                    {
-                        data->x+=22;
-                    }            
-                }
-                else if (game_is_button_pressed(BUTTON_UP))
-                {
-                    if (data->y>0)
-                    {
-                        data->y-=22;
-                    }            
-                }
-                else if (game_is_button_pressed(BUTTON_DOWN))
-                {
-                    if (data->y<44)
-                    {
-                        data->y+=22;
-                    }             
-                }
-            } 
-        
-            else
-            {
-                q = (( data->x == 0 )  ?  0 : ( (data->x  ==  22)  ?  1 : 2 ));
-        
-                w = (( data->y == 0 )  ?  0 : ( (data->y  ==  22)  ?  1 : 2 ));
-                
-                if(data->field[q][w] == NOTHING)
-                {
-                    data->field[q][w] = CROSS;
-                }
-                else  data->flafg = true;
-                if(!data->flafg)  data->xod_igroka = false;
-                data->flafg = false;
-             }
-        }
-        else
-        {
-            data->WIN = is_Win(flag);
-            if(!flag)
-            {
-                for(int _ = 0; _ < 3; ++_)
-                {
-                    if(data->field[_][0] == data->field[_][1] && data->field[_][2] == NOTHING || data->field[_][0] == data->field[_][2] && data->field[_][1] == NOTHING || data->field[_][1] == data->field[_][2] && data->field[_][0] == NOTHING)
-                    {
-                        if(data->field[_][0] == TOE || data->field[_][1] == TOE)
-                        {
-                            (data->field[_][0] == NOTHING) ? (data->field[_][0] = TOE)  :  (data->field[_][1] == NOTHING) ? (data->field[_][1] = TOE)  :  (data->field[_][2] = TOE);
-                            goto s;
-                        }
-                    }
-                }
-                for(int _ = 0; _ < 3; ++_)
-                {
-                    if(data->field[0][_] == data->field[1][_] && data->field[2][_] == NOTHING || data->field[0][_] == data->field[2][_] && data->field[1][_] == NOTHING || data->field[1][_] == data->field[2][_] && data->field[0][_] == NOTHING)
-                    {
-                        if(data->field[0][_] == TOE || data->field[1][_] == TOE)
-                        {
-                            (data->field[0][_] == NOTHING) ? (data->field[0][_] = TOE)  :  (data->field[1][_] == NOTHING) ? (data->field[1][_] = TOE)  :  (data->field[2][_] = TOE);
-                            goto s;
-                        }
-                    }
-                }
 
-                //////////////////////////////////////////////////////////////////////////////////////////
-                // write something about diagonals here:
-                //////////////////////////////////////////////////////////////////////////////////////////
-
-                if (
-                         data->field[0][0] == data->field[1][1] && data->field[2][2] == NOTHING && data->field[0][0] == TOE
-                      || data->field[0][0] == data->field[2][2] && data->field[1][1] == NOTHING && data->field[0][0] == TOE
-                      || data->field[2][2] == data->field[1][1] && data->field[0][0] == NOTHING && data->field[2][2] == TOE
-                   )
-                {
-                    (data->field[0][0] == NOTHING) ? (data->field[0][0] = TOE) : ((data->field[1][1] == NOTHING) ? (data->field[1][1] = TOE) : (data->field[2][2] = TOE));
-                    goto s;
-                }
-                if (
-                         data->field[0][2] == data->field[1][1] && data->field[2][0] == NOTHING && data->field[0][2] == TOE
-                      || data->field[0][2] == data->field[2][0] && data->field[1][1] == NOTHING && data->field[0][2] == TOE
-                      || data->field[2][0] == data->field[1][1] && data->field[0][2] == NOTHING && data->field[2][0] == TOE
-                   )
-                {
-                    (data->field[0][2] == NOTHING) ? (data->field[0][2] = TOE) : ((data->field[1][1] == NOTHING) ? (data->field[1][1] = TOE) : (data->field[2][0] = TOE));
-                    goto s;
-                }
-                //////////////////////////////////////////////////////////////////////////////////////////
-                // end of something about diagonals;
-                //////////////////////////////////////////////////////////////////////////////////////////
-                for(int _ = 0; _ < 3; ++_)
-                {
-                    if(data->field[_][0] == data->field[_][1] && data->field[_][2] == NOTHING || data->field[_][0] == data->field[_][2] && data->field[_][1] == NOTHING || data->field[_][1] == data->field[_][2] && data->field[_][0] == NOTHING)
-                    {
-                        if(data->field[_][0] == CROSS || data->field[_][1] == CROSS)
-                        {
-                            (data->field[_][0] == NOTHING) ? (data->field[_][0] = TOE)  :  (data->field[_][1] == NOTHING) ? (data->field[_][1] = TOE)  :  (data->field[_][2] = TOE);
-                            goto s;
-                        }
-                    }
-                    
-                    if(data->field[0][_] == data->field[1][_] && data->field[2][_] == NOTHING || data->field[0][_] == data->field[2][_] && data->field[1][_] == NOTHING || data->field[1][_] == data->field[2][_] && data->field[0][_] == NOTHING)
-                    {
-                        if(data->field[0][_] == CROSS || data->field[1][_] == CROSS)
-                        {
-                            (data->field[0][_] == NOTHING) ? (data->field[0][_] = TOE)  :  (data->field[1][_] == NOTHING) ? (data->field[1][_] = TOE)  :  (data->field[2][_] = TOE);
-                            goto s;
-                        }
-                    }
-                }
-                //////////////////////////////////////////////////////////////////////////////////////////
-                // and here may be, but if you will not want do it, you can forget it.
-                //////////////////////////////////////////////////////////////////////////////////////////
-                
-                if     (data->field[1][1] == NOTHING)
-                    data->field[1][1] = TOE;
-                else if(data->field[0][0] == NOTHING)
-                    data->field[0][0] = TOE;
-                else if(data->field[0][2] == NOTHING)
-                    data->field[0][2] = TOE;
-                else if(data->field[2][0] == NOTHING)
-                    data->field[2][0] = TOE;
-                else if(data->field[2][2] == NOTHING)
-                    data->field[2][2] = TOE;
-              
-                  
-              else if(data->field[0][1] == NOTHING)
-                  data->field[0][1] = TOE;
-              else if(data->field[1][2] == NOTHING)
-                  data->field[1][2] = TOE;
-              else if(data->field[2][1] == NOTHING)
-                  data->field[2][1] = TOE;
-              else if(data->field[1][0] == NOTHING)
-                  data->field[1][0] = TOE;
-              s:
-    
-              if(is_Lose(flag))
-              {
-                  data->pause = 600;
-              }
-              else
-                  data->xod_igroka = true;        
-              data->DRAW = is_draw();
-            }
-        }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// if game is over and player wants to play once more.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      
+        if(game_is_button_pressed(BUTTON_B))
+            reload();
     }
-    ////////////////////////////////////////////////////////////////////////////////
-    // end of joystick
-    ////////////////////////////////////////////////////////////////////////////////
 }
-else
-{
-    if(game_is_button_pressed(BUTTON_B))
-        reload();
-}
-}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// functions:
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Does Player win? :
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool is_Win( bool &flag )
 {
@@ -596,6 +693,10 @@ bool is_Win( bool &flag )
     return false;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Does player lose? And bot's win.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 bool is_Lose( bool &flag )
 {
     for(int i = 0; i < 3; ++i)
@@ -629,6 +730,10 @@ bool is_Lose( bool &flag )
     return false;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// if draw has happend
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 bool is_draw()
 {
     for(int i = 0; i < 3; ++i)
@@ -643,6 +748,10 @@ bool is_draw()
     }
     return false;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// if you want reload game
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void reload()
 {
