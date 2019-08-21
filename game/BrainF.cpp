@@ -98,7 +98,7 @@
  * */
 struct BrainFProgram
 {
-  const char Prog[160];
+  const char Prog[170];
 };
 
 static const BrainFProgram BrainFPrograms[] PROGMEM = {
