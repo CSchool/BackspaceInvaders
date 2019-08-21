@@ -16,7 +16,7 @@ target_sources(gamebox PUBLIC ../BackspaceInvaders.cpp ../BreakOut.cpp ../Flappy
                ../Tester.cpp ../Mario.cpp ../Ghostbuster.cpp ../SpaceShips.cpp
                ../LodeRunner.cpp ../TicTacToe.cpp ../NY2019.cpp ../Tetrisnake.cpp
                ../DoodleJump.cpp ../ColorDemo.cpp ../SpriteDemo.cpp ../Maze3D.cpp
-               ../Pacman.cpp)
+               ../Pacman.cpp ../VVVV.cpp)
 
 target_sources(gamebox PUBLIC ../application.cpp ../avrfix.cpp ../menu.cpp ../random.cpp
                ../common_sprites.cpp)

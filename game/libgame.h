@@ -43,10 +43,9 @@ extern const game_instance LodeRunner PROGMEM;
 #endif
 extern const game_instance SpaceShips PROGMEM;
 extern const game_instance Mario PROGMEM;
-extern const game_instance Minecraft PROGMEM;
+/*extern const game_instance Minecraft PROGMEM;*/
 extern const game_instance Ghostbuster PROGMEM;
 /*extern const game_instance artyom;*/
-
 
 /* NY2019 mini-hackaton */
 #ifdef FRAME_BUFFER
@@ -58,6 +57,7 @@ extern const game_instance DoodleJump PROGMEM;
 /* LKSH 2019 */
 #ifdef FRAME_BUFFER
 extern const game_instance Maze3D PROGMEM;
+extern const game_instance VVVV PROGMEM;
 #endif
 extern const game_instance BrainF PROGMEM;
 extern const game_instance TicTacToe PROGMEM;

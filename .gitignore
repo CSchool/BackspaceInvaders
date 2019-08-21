@@ -3,5 +3,6 @@ bin
 *.swp
 *.exe
 *.o
-game/emulator/emulator
-game/qt_emulator/build
+game/qt_emulator/build/*
+game/libgame.h.gch
+VirtualGameBox/build/*
