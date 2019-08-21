@@ -773,7 +773,7 @@ void reload()
 
 
 const game_instance TicTacToe PROGMEM = {
-    "TicTactoe",         /* Имя, отображаемое в меню */
+    "TicTacToe",         /* Имя, отображаемое в меню */
     Tic_Tac_toe_prepare,
     Tic_Tac_toe_render,
     Tic_Tac_toe_update,
