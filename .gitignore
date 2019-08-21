@@ -4,3 +4,4 @@ bin
 *.exe
 *.o
 game/emulator/emulator
+game/qt_emulator/build

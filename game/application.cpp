@@ -12,6 +12,7 @@ static const MenuItem main_menu[] PROGMEM = {
     { "\xcb\xca\xd8 2019", NULL },
     { "TicTacToe", &TicTacToe},
     { "BrainF",&BrainF},
+    { "Pacman", &Pacman},
 #ifdef FRAME_BUFFER
     { "Maze 3D", &Maze3D},
 #endif

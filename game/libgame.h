@@ -46,7 +46,7 @@ extern const game_instance Mario PROGMEM;
 extern const game_instance Minecraft PROGMEM;
 extern const game_instance Ghostbuster PROGMEM;
 /*extern const game_instance artyom;*/
-extern const game_instance TicTacToe PROGMEM;
+
 
 /* NY2019 mini-hackaton */
 #ifdef FRAME_BUFFER
@@ -60,6 +60,8 @@ extern const game_instance DoodleJump PROGMEM;
 extern const game_instance Maze3D PROGMEM;
 #endif
 extern const game_instance BrainF PROGMEM;
+extern const game_instance TicTacToe PROGMEM;
+extern const game_instance Pacman PROGMEM;
 
 /* Test applications */
 #ifndef EMULATED
@@ -83,4 +85,4 @@ void game_setup();
 void game_save(const void *buf, uint16_t size);
 void game_load(void *buf, uint16_t size);
 
-#endif 
+#endif
