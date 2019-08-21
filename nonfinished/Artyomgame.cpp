@@ -1,4 +1,3 @@
-#if 0
 #pragma GCC optimize ("-O3")
 
 #include "libgame.h"
@@ -221,4 +220,3 @@ const game_instance artyom PROGMEM = {
 
 
 /* Не забудьте зарегистрировать игру в application.cpp */
-#endif

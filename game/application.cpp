@@ -34,7 +34,6 @@ static const MenuItem main_menu[] PROGMEM = {
     { "GhostBuster", &Ghostbuster },
     { "SpaceShips", &SpaceShips },
     { "Mario", &Mario},
-/* Not finished    { "artyom", &artyom }, */
 
     { "\xcb\xca\xd8 2017", NULL },
     { "Flappy", &Flappy },
