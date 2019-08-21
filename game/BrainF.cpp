@@ -103,7 +103,7 @@ struct BrainFProgram
 
 static const BrainFProgram BrainFPrograms[] PROGMEM = {
   {"New       "},
-  {"Hello worl++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++. ------.--------.>+.>."},
+  {"Hello worl++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>."},
   {"(+/-)Calcu,>++++++[<-------->-],>++++++[<-------->-],>++++++[<-------->-]<<[>>+>>+<<<<-]>[>+>>-<<<-]<<[>>+<<-]>>[>]>>>>++++++[<<<++++++++>>>-]<<<."},
   {"(+)Additio,>,[<+>-]<."},
   {"(-)Subtrac,>,[<->-]<."},
@@ -446,11 +446,11 @@ static void BrainF_update(unsigned long delta)
   }
   if (data->Menu == -1) {
     if (data->CursorposY < 11)
-      if  (game_is_button_pressed (BUTTON_RIGHT)) {
+      if  (game_is_button_pressed (BUTTON_DOWN)) {
         data->CursorposY += 1;
       }
     if (data->CursorposY > 0)
-      if  ( game_is_button_pressed (BUTTON_LEFT)) {
+      if  ( game_is_button_pressed (BUTTON_UP)) {
         data->CursorposY -= 1;
       }
 
