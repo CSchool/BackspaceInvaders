@@ -158,9 +158,11 @@ static BrainFData* data; /* Эта переменная - указатель н�
 static void BrainF_ran()
 {
   char cpu[50];
-  uint8_t charsI;
+  uint8_t charsI=0;
   for (int i = 0; 35 > i; i++)
     data->output[i] = 0;
+    for (int i = 0; 50 > i; i++)
+    cpu[i] = 0;
   data->outputX = 0;
   int inputX = 0;
   uint16_t j = 5;
