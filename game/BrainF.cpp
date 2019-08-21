@@ -96,13 +96,56 @@
    game_is_any_button_pressed(mask) - Нажата ли хотя бы одна кнопка? Например: game_is_any_button_pressed(BITMASK(BUTTON_SW) | BITMASK(BUTTON_DOWN))
 
  * */
+struct BrainFProgram
+{
+  const char Prog[160];
+};
+
+static const BrainFProgram BrainFPrograms[] PROGMEM = {
+  {"New       "},
+  {"Hello worl++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++. ------.--------.>+.>."},
+  {"(+/-)Calcu,>++++++[<-------->-],>++++++[<-------->-],>++++++[<-------->-]<<[>>+>>+<<<<-]>[>+>>-<<<-]<<[>>+<<-]>>[>]>>>>++++++[<<<++++++++>>>-]<<<."},
+  {"(+)Additio,>,[<+>-]<."},
+  {"(-)Subtrac,>,[<->-]<."},
+  {"(*)Multipl,>,<[>[>+>+<<-]>[<+>-]<<-]>>>."},
+  {"(/)Divisio+>,+>,<[<+>>[<<->>->+>]>[<<+>>[<+>-]]<<<<[<]>>-]<-."},
+  {"(/%)Divisi,>,<[<+<<<<+>>>>>-]>[<+<<<<+>>>>>-]<<<+>+[<+>>[<<->>->+>]>[<<+>>[<+>-]]<<<<[<]>>-]<-.[<+>-]<<[>[>+>+<<-]>[<+>-]<<-]>>>[<<<+>>>-]<<[-]<[<->-]<."},
+  {"FibonacciN>+[.[>+>+<<-]>>[<<+>>-]<<<[>>+<<-]>>]"},
+  {"(^)Power  ,>,-[<[>>+>+<<<-]>>>[<<<+>>>-]<<<[>>[>+>+<<-]>>[<<->>+]<<<<-]>-]>[-]>."},
+  {"(^2)Power >+<,[->[->++<]>[-<+>]<<]>."},
+  {"(*)2Multip,>,<[->[->+>+<<]>>[-<<+>>]<<<]>>."},
+  {"(!)Factori,>>>>+<<<<[->+[->+>+<<]>[-<+>]>[->[->+>+<<]>[-<+>]<<]>[-]>>[-<<+>>]<<<<<<]>>>>."}
+};
+/*const char *ptr = (const char *)m->menu[page + iter].name;  static const uint8_t const BrainFPrograms1[] PROGMEM = {
+  'N','e','w',' ',' ',' ',' ',' ',' ',' '
+  ,'+'
+
+
+
+
+  }*/
+/* static const char* const BrainFPrograms[] PROGMEM = {
+    "New",
+    "Hello word",
+    "Калькулятор",
+    "Сложение",
+    "Вычитание",
+    "Умножение",
+    "Деление",
+    "Деление с ост",
+    "Числа Фибоначчи",
+    "Возв в степ",
+    "Степень двойки",
+    "Произведение",
+    "Факториал",
+  };*/
 
 struct BrainFData
 {
   uint8_t CursorposX, CursorposY, outputX;
   int Timer, Timer2;
   uint8_t MapX;
-  uint8_t Menu;
+  int8_t Menu;
   uint8_t chars[6][12][9];
   uint8_t output[35];
   uint8_t input[35];
@@ -122,12 +165,16 @@ static void BrainF_ran()
   int inputX = 0;
   uint16_t j = 5;
   int brc = 0;
+  int thicle = 0;
   // for (int mz = 0; 6 > mz; mz++)
   //  for (int mj = 0; 9 > mj; mj++)
   for (int i = 0; 12 * 6 * 9 > i; i++)
     if (data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] != 0)
       if (data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] < 19)
       {
+        thicle++;
+        if (thicle>32000)
+        return;
         charsI = data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9];
         if (charsI == 12) //>
           j++;
@@ -216,11 +263,11 @@ static void BrainF_setmap(int x1, int z1, uint8_t mmapX, uint8_t a)
   data->chars[mmapX][x1][z1] =  a;
 
 }
-static const uint8_t col[19] PROGMEM ={0, '0'/*1*/, '1'/*2*/, '2',
-                                    '3',  '4', '5', '6', '7', '8', '9'/*10*/, '<'/*11*/, '>'/*12*/, '+'/*13*/,
-                                    '-'/*14*/, '.'/*15*/, ','/*16*/, '['/*17*/, ']'/*18*/
-                                   }
-;
+static const uint8_t col[19] PROGMEM = {0, '0'/*1*/, '1'/*2*/, '2',
+                                        '3',  '4', '5', '6', '7', '8', '9'/*10*/, '<'/*11*/, '>'/*12*/, '+'/*13*/,
+                                        '-'/*14*/, '.'/*15*/, ','/*16*/, '['/*17*/, ']'/*18*/
+                                       }
+                             ;
 static uint8_t BrainF_getcharmap(uint8_t x1, uint8_t z1, uint8_t mmapX)
 {
 
@@ -244,7 +291,7 @@ static void BrainF_prepare()
   data->CursorposX = 0;
   data->CursorposY = 0;
   data->MapX = 0;
-  data->Menu = 0;
+  data->Menu = -1;
   data->Timer2 = 0;
   /* Здесь код, который будет исполнятся один раз */
   /* Здесь нужно инициализировать переменные */
@@ -253,8 +300,53 @@ static void BrainF_prepare()
 static void BrainF_render()
 {
 
+  if (data->Menu == -1) {
 
-  if (data->Menu == 0) {
+
+    if (data->CursorposY < 9) {
+      for (int i = 0; 9 > i; i++) {
+        const char *ptr = (const char *)BrainFPrograms[i].Prog;
+
+        char c = pgm_read_byte(ptr++);
+        if (!c)
+          break;
+        int8_t x = 0;
+        int8_t y = i * 7;
+        int8_t color = WHITE;
+        if (data->CursorposY == i)
+          color = RED;
+        while (x < 64)
+        {
+          game_draw_char(c, x, y, color);
+          c = pgm_read_byte(ptr++);
+          x += 6;
+        }
+      }
+    } else {
+      for (int i = 9; 12 > i; i++)
+      {
+        const char *ptr = (const char *)BrainFPrograms[i].Prog;
+        char c = pgm_read_byte(ptr++);
+        if (!c)
+          break;
+        int8_t x = 0;
+        int8_t y = (i - 9) * 7;
+        int8_t color = WHITE;
+        if (data->CursorposY == i)
+          color = RED;
+        while (x < 64)
+        {
+          game_draw_char(c, x, y, color);
+          c = pgm_read_byte(ptr++);
+          x += 6;
+        }
+      }
+
+
+    }
+  }
+
+  else if (data->Menu == 0) {
     for (int i = 0; 9 > i; i++)
       for (int j = 0; 12 > j; j++)
         if (BrainF_getmap(j, i, data->MapX) != 0)
@@ -263,10 +355,10 @@ static void BrainF_render()
     if (data->Timer < 300)
       game_draw_text((uint8_t*)"_", data->CursorposX, data->CursorposY, WHITE);
   } else if (data->Menu == 1) {
-      for (int j = 0; 12 > j; j++)
+    for (int j = 0; 12 > j; j++)
       for (int i = 0; 3 > i; i++)
-      if (i*12+j<35)
-          game_draw_char(data->input[i*12+j], (j) * 5, (i) * 7, WHITE);
+        if (i * 12 + j < 35)
+          game_draw_char(data->input[i * 12 + j], (j) * 5, (i) * 7, WHITE);
     /* Здесь код, который будет вывзваться для отрисовки кадра */
     if (data->Timer < 300)
       game_draw_text((uint8_t*)"_", data->CursorposX, data->CursorposY, WHITE);
@@ -280,8 +372,8 @@ static void BrainF_render()
     // else
     game_draw_text((uint8_t*)"Download", 0, 0, RED);
     game_draw_text((uint8_t*)"multisize", 0, 9, RED);
-    game_draw_text((uint8_t*)"on", 0, 64-9-9, RED);
-    game_draw_text((uint8_t*)"mu..ze.ru", 0, 64-9, RED);
+    game_draw_text((uint8_t*)"on", 0, 64 - 9 - 9, RED);
+    game_draw_text((uint8_t*)"mu..ze.ru", 0, 64 - 9, RED);
   }
 
   /* Он не должен менять состояние игры, для этого есть функция update */
@@ -299,6 +391,41 @@ static void BrainF_update(unsigned long delta)
     data->Timer = 0;
   if  (game_is_button_pressed ( BUTTON_START) && (data->Timer2 <= 0))
   {
+    if ((data->Menu == -1))
+    {
+      //for data
+      const char *ptr = (const char *)BrainFPrograms[data->CursorposY].Prog;
+      //xfor (int i = 0; i < 10; i++)
+      ptr=ptr+10;
+        char c = pgm_read_byte(ptr++);
+      uint8_t i= 0;
+      while (c)
+      {
+        i++;
+        if (c == '<')
+          data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] = 11;
+        else if (c == '>')
+          data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] = 12;
+        else if (c == '+')
+          data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] = 13;
+        else if (c == '-')
+          data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] = 14;
+        else if (c == '.')
+          data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] = 15;
+        else if (c == ',')
+          data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] = 16;
+        else if (c == '[')
+          data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] = 17;
+        else if (c == ']')
+          data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] = 18;
+        else
+          data->chars[i / 9 / 12 % 6][i  % 12][i / 12 % 9] = 1;
+        c = pgm_read_byte(ptr++);
+      }
+      
+      data->CursorposX = 0;
+      data->CursorposY = 0;
+    }
     if ((data->Menu == 2))
       data->Menu = 0;
     else
@@ -309,36 +436,46 @@ static void BrainF_update(unsigned long delta)
         data->input[i] = 0;
     }
 
-    if ((data->Menu == 1))  
+    if ((data->Menu == 1))
     {
-      data->CursorposX=0;
-      data->CursorposY=0;
+      data->CursorposX = 0;
+      data->CursorposY = 0;
     }
     data->Timer2 = 200;
     return;
   }
+  if (data->Menu == -1) {
+    if (data->CursorposY < 11)
+      if  (game_is_button_pressed (BUTTON_RIGHT)) {
+        data->CursorposY += 1;
+      }
+    if (data->CursorposY > 0)
+      if  ( game_is_button_pressed (BUTTON_LEFT)) {
+        data->CursorposY -= 1;
+      }
 
-if (data->Menu == 1) {
- if ( game_is_button_pressed (BUTTON_A)) {
-      if (data->input[(data->CursorposY / 7)*12+(data->CursorposX / 5)] < 255) {
-        data->input[(data->CursorposY / 7)*12+(data->CursorposX / 5)] +=  1;
+  }
+  if (data->Menu == 1) {
+    if ( game_is_button_pressed (BUTTON_A)) {
+      if (data->input[(data->CursorposY / 7) * 12 + (data->CursorposX / 5)] < 255) {
+        data->input[(data->CursorposY / 7) * 12 + (data->CursorposX / 5)] +=  1;
         data->Timer = 300;
       } else {
-        data->input[(data->CursorposY / 7)*12+(data->CursorposX / 5)] =  0;
+        data->input[(data->CursorposY / 7) * 12 + (data->CursorposX / 5)] =  0;
         data->Timer = 300;
       }
     }
     if ( game_is_button_pressed (BUTTON_B)) {
-      if (data->input[(data->CursorposY / 7)*12+(data->CursorposX / 5)] > 0 ) {
-        data->input[(data->CursorposY / 7)*12+(data->CursorposX / 5)] -=  1;
+      if (data->input[(data->CursorposY / 7) * 12 + (data->CursorposX / 5)] > 0 ) {
+        data->input[(data->CursorposY / 7) * 12 + (data->CursorposX / 5)] -=  1;
         data->Timer = 300;
       } else {
-       data->input[(data->CursorposY / 7)*12+(data->CursorposX / 5)]=255 ;
+        data->input[(data->CursorposY / 7) * 12 + (data->CursorposX / 5)] = 255 ;
         data->Timer = 300;
       }
     }
 
-    
+
 
     if (data->CursorposX < 64 - 9)
       if  (game_is_button_pressed (BUTTON_RIGHT)) {
@@ -351,7 +488,7 @@ if (data->Menu == 1) {
         data->Timer = -200;
       }
 
-    if (data->CursorposY < 3*8)
+    if (data->CursorposY < 3 * 8)
       if ( game_is_button_pressed (BUTTON_DOWN)) {
         data->CursorposY += 7;
         data->Timer = -200;
@@ -362,8 +499,8 @@ if (data->Menu == 1) {
         data->Timer = -200;
       }
 
-  
-}
+
+  }
 
 
 
@@ -371,7 +508,7 @@ if (data->Menu == 1) {
 
 
 
-  
+
   if (data->Menu == 0) {
     if ( game_is_button_pressed (BUTTON_A)) {
       if (BrainF_getmap(data->CursorposX / 5, data->CursorposY / 7, data->MapX) < 18) {
