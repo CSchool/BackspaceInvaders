@@ -63,6 +63,13 @@ Buttons are connected via 74165, NES joystick is connected to (CLOCK, LATCHJ, SE
 * LATCHJ - A10
 * DATA - A11
 
+NES controller conntection (15 pin):
+* 1 - GND
+* 8 - D0 (DS of 74165)
+* 9 - CLK (CP of 74165)
+* 12 - OUT0 (A10 of Mega)
+* 15 - +5V
+
 ## Sound chip connection
 
 Configuration with Arduino Mega supports chiptune music for YM-2149.
