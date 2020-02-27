@@ -2,6 +2,10 @@
 
 Hardware platform and game library based on Arduino and LED display 64x64
 
+Demonstration of the working prototype: https://www.youtube.com/watch?v=gy7oADJboqM
+
+## Display
+
 This project uses Adafruit-like display:
 https://learn.adafruit.com/32x16-32x32-rgb-led-matrix
 
@@ -15,7 +19,32 @@ LLLLUUUU
 Therefore this is logically 128x32 display.
 Arduino shifts 128 pixels into display registers at every iteration.
 
-Demonstration of the working prototype: https://www.youtube.com/watch?v=gy7oADJboqM
+Pinout:
+* R1 - 1
+* G1
+* B1
+* GND
+* R2
+* G2
+* B2
+* GND
+* A
+* B
+* C
+* D
+* CLK
+* LAT
+* OE
+* GND - 16
+
+* 1 2
+* 3 4
+* 5 6
+* 7 8
+* 9 10
+* 11 12
+* 13 14
+* 15 16
 
 ## Arduino Uno wiring
 
